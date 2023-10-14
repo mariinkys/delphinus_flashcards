@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 
 	"github.com/mariinkys/delphinus_flashcards/internal/config"
 )
@@ -26,4 +27,20 @@ func ServerError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.ErrorLog.Println(trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+// TrimLeftString Trims Left a string given a string and a character
+func TrimLeftString(s string, char string) string {
+	if idx := strings.Index(s, char); idx != -1 {
+		return s[idx:]
+	}
+	return s
+}
+
+// TrimRightString Trims Right a string given a string and a character
+func TrimRightString(s string, char string) string {
+	if idx := strings.Index(s, char); idx != -1 {
+		return s[:idx]
+	}
+	return s
 }

@@ -1,0 +1,27 @@
+{{template "base" .}}
+
+{{define "content"}}
+   <h1 class="text-center font-extrabold text-6xl my-3">Generate your Flashcards!</h1>
+
+   <div class="max-w-md m-auto">
+      <form class="form-control" action="/generator" method="POST">
+         <textarea id="characters" name="characters" placeholder="Enter the character string" class="input input-bordered input-primary w-full my-4 min-h-[15vh]"></textarea>
+         
+         <div class="d-block text-center mb-3">
+         <span class="mx-3">
+            <input type="radio" id="jp" name="language" value="jp">
+            <label for="jp">Japanese</label>
+         </span>
+         <span class="mx-3">
+            <input type="radio" id="ch" name="language" value="ch">
+            <label for="ch">Chinese</label>
+         </span>
+         </div>
+
+         <input type="submit" value="Generate" class="btn btn-primary"/>
+      </form> 
+   </div>
+{{end}}
+
+{{define "js"}}
+{{end}}
