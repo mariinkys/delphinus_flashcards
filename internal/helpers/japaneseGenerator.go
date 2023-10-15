@@ -42,7 +42,7 @@ type result struct {
 	Definition string
 }
 
-func RunJap(input string) string {
+func RunJap(input string) (string, []string) {
 	parsedInput := parseJapInput(input)
 	dict := loadJapDictionary()
 
@@ -50,11 +50,12 @@ func RunJap(input string) string {
 
 	//TMP: TODO
 	notFoundRes := notFoundInJapDictionary(foundRes, parsedInput)
+	var nfSlice []string
 	for i := 0; i < len(notFoundRes); i++ {
-		println(notFoundRes[i].Kanji)
+		nfSlice = append(nfSlice, notFoundRes[i].Kanji)
 	}
 
-	return generateJapOutput(foundRes)
+	return generateJapOutput(foundRes), nfSlice
 }
 
 func parseJapInput(input string) []string {

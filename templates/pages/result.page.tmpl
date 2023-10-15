@@ -1,0 +1,41 @@
+{{template "base" .}}
+
+{{define "content"}}
+   <h1 class="text-center font-extrabold text-6xl my-3">Dashboard</h1>
+   <div class="max-w-md m-auto">
+      {{$res := index .Data "res"}}
+      {{$not_found := index .Data "not_found"}}
+
+      {{if $not_found}}
+         <p class="text-center font-semibold">Some characters have not been found:</p>
+         {{range $i, $nf := $not_found}}
+            <p class="text-center">{{.}}</p>
+         {{end}}
+         <br>
+      {{end}}
+
+      {{if eq $res ""}}
+         <p class="text-center font-semibold">Nothing found</p>
+      {{else}}
+         <input type="text" style="display:none;" id="opResult" value="{{$res}}"></input>
+         <div class="w-full text-center">
+            <button class="btn btn-primary" onclick="copyResToClipboard()">Copy Flashcards</button>
+         </div>
+      {{end}}
+
+   </div>
+{{end}}
+
+{{define "js"}}
+   <script>
+      function copyResToClipboard() {
+         var copyText = document.getElementById("opResult");
+         copyText.select();
+         copyText.setSelectionRange(0, 99999); // For mobile devices
+         navigator.clipboard.writeText(copyText.value);
+
+         // Alert the copied text
+         notifySuccess("Copied the result to the clipboard!");
+      } 
+   </script>
+{{end}}

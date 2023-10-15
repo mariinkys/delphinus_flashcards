@@ -18,19 +18,19 @@ type dictionaryEntry struct {
 	Definition string
 }
 
-func RunCh(input string) string {
+func RunCh(input string) (string, []string) {
 	parsedInput := parseChInput(input)
 	dict := loadChDictionary()
 
 	foundRes := searchChDictionary(dict, parsedInput)
 
-	//TMP: TODO
 	notFoundRes := notFoundInChDictionary(foundRes, parsedInput)
+	var nfSlice []string
 	for i := 0; i < len(notFoundRes); i++ {
-		println(notFoundRes[i].Hanzi)
+		nfSlice = append(nfSlice, notFoundRes[i].Hanzi)
 	}
 
-	return generateChOutput(foundRes)
+	return generateChOutput(foundRes), nfSlice
 }
 
 func parseChInput(input string) []string {
