@@ -3,4 +3,5 @@
 tmp
 node_modules
 bin
+.env
 /internal/dictionaries/jap/JMdict.xml

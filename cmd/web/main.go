@@ -4,16 +4,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/mariinkys/delphinus_flashcards/internal/config"
 	"github.com/mariinkys/delphinus_flashcards/internal/handlers"
 	"github.com/mariinkys/delphinus_flashcards/internal/helpers"
 	"github.com/mariinkys/delphinus_flashcards/internal/render"
 )
-
-const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -21,8 +21,20 @@ var infoLog *log.Logger
 var errorLog *log.Logger
 
 func main() {
+	portNumber, ok := os.LookupEnv("ApplicationPort")
+	if !ok {
+		log.Fatal("Cannot load production env variable")
+	}
+
 	// Change this to true when in production
-	app.InProduction = false
+	production := os.Getenv("InProduction")
+	boolProdValue, err := strconv.ParseBool(production)
+	if err != nil {
+		log.Fatal("Cannot load production env variable")
+	}
+	app.InProduction = boolProdValue
+
+	app.Version = os.Getenv("ApplicationVersion")
 
 	// Create Loggers
 	infoLog = log.New(os.Stdout, "INFO - ", log.Ldate|log.Ltime)
@@ -56,10 +68,10 @@ func main() {
 	render.NewRenderer(&app)
 	helpers.NewHelpers(&app)
 
-	log.Printf("Starting application on http://localhost%s", portNumber)
+	log.Printf("Starting application on http://localhost:%s", portNumber)
 
 	server := &http.Server{
-		Addr:    portNumber,
+		Addr:    ":" + portNumber,
 		Handler: routes(&app),
 	}
 
