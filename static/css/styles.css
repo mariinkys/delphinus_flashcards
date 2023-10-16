@@ -710,6 +710,16 @@ html {
     color: hsl(var(--bc) / var(--tw-text-opacity));
   }
 
+  .link-primary:hover {
+    --tw-text-opacity: 1;
+    color: hsl(var(--pf) / var(--tw-text-opacity));
+  }
+
+  .link-secondary:hover {
+    --tw-text-opacity: 1;
+    color: hsl(var(--sf) / var(--tw-text-opacity));
+  }
+
   .table tr.hover:hover,
   .table tr.hover:nth-child(even):hover {
     --tw-bg-opacity: 1;
@@ -1592,6 +1602,16 @@ details.collapse summary::-webkit-details-marker {
   --tw-placeholder-opacity: 0.2;
 }
 
+.link-primary {
+  --tw-text-opacity: 1;
+  color: hsl(var(--p) / var(--tw-text-opacity));
+}
+
+.link-secondary {
+  --tw-text-opacity: 1;
+  color: hsl(var(--s) / var(--tw-text-opacity));
+}
+
 .link:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -2089,6 +2109,14 @@ details.collapse summary::-webkit-details-marker {
   max-width: 28rem;
 }
 
+.list-decimal {
+  list-style-type: decimal;
+}
+
+.list-disc {
+  list-style-type: disc;
+}
+
 .grid-flow-col {
   grid-auto-flow: column;
 }
@@ -2131,6 +2159,26 @@ details.collapse summary::-webkit-details-marker {
 .py-6 {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.px-5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .text-center {
