@@ -20,6 +20,11 @@
          <a rel="me" href="https://mastodon.social/@mariinkys" style="display:none;">Mastodon</a>
 
          <header style="min-height:50px !important;">
+            {{if not .InProduction}}
+            <div class="w-full bg-error">
+               <p class="text-center text-white p-3">You are running in a Development Environment!</p>
+            </div>
+            {{end}}
             <nav class="navbar bg-base-100">
                <div class="navbar-start">
                   <a class="btn btn-ghost normal-case text-xl" href="/">Delphinus Flashcards!</a>
