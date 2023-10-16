@@ -1,13 +1,13 @@
 {{template "base" .}}
 
 {{define "content"}}
-   <h1 class="text-center font-extrabold text-6xl my-3">Dashboard</h1>
+   <h1 class="text-center font-extrabold text-6xl my-3">Flashcards Generated</h1>
    <div class="max-w-md m-auto">
       {{$res := index .Data "res"}}
       {{$not_found := index .Data "not_found"}}
 
       {{if $not_found}}
-         <p class="text-center font-semibold">Some characters have not been found:</p>
+         <p class="text-center font-semibold">Some characters have not been found</p>
          {{range $i, $nf := $not_found}}
             <p class="text-center">{{.}}</p>
          {{end}}
@@ -17,6 +17,10 @@
       {{if eq $res ""}}
          <p class="text-center font-semibold">Nothing found</p>
       {{else}}
+         {{if not $not_found}}
+            <p class="text-center font-semibold">All characters have been found</p>
+            <br>
+         {{end}}
          <input type="text" style="display:none;" id="opResult" value="{{$res}}"></input>
          <div class="w-full text-center">
             <button class="btn btn-primary" onclick="copyResToClipboard()">Copy Flashcards</button>

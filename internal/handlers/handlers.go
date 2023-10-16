@@ -89,12 +89,16 @@ func (m *Repository) Result(w http.ResponseWriter, r *http.Request) {
 
 	res, ok := m.App.Session.Get(r.Context(), "res").(string)
 	if !ok {
+		m.App.Session.Put(r.Context(), "error", "Server Error!")
+		http.Redirect(w, r, "/generator", http.StatusSeeOther)
 		helpers.ServerError(w, errors.New("can't get result from session"))
 		return
 	}
 
 	notFoundRes, ok := m.App.Session.Get(r.Context(), "not_found").([]string)
 	if !ok {
+		m.App.Session.Put(r.Context(), "error", "Server Error!")
+		http.Redirect(w, r, "/generator", http.StatusSeeOther)
 		helpers.ServerError(w, errors.New("can't get result from session"))
 		return
 	}
