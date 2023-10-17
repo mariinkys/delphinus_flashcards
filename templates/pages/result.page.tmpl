@@ -21,7 +21,6 @@
             <p class="text-center font-semibold">All characters have been found</p>
             <br>
          {{end}}
-         <input type="text" style="display:none;" id="opResult" value="{{$res}}"></input>
          <div class="w-full text-center">
             <button class="btn btn-primary" onclick="copyResToClipboard()">Copy Flashcards</button>
          </div>
@@ -31,12 +30,11 @@
 {{end}}
 
 {{define "js"}}
+   {{$res := index .Data "res"}}
    <script>
+      const copyText = {{ printf "%q" $res }}
       function copyResToClipboard() {
-         var copyText = document.getElementById("opResult");
-         copyText.select();
-         copyText.setSelectionRange(0, 99999); // For mobile devices
-         navigator.clipboard.writeText(copyText.value);
+         navigator.clipboard.writeText(copyText);
 
          // Alert the copied text
          notifySuccess("Copied the result to the clipboard!");
