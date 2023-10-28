@@ -11,9 +11,7 @@ I have many ideas that I want to try on this project, you can find more informat
 
 ## How to Use?
 
-<b>This application is not live for now</b>, if you want to use the project, you can download it and, with Go installed, run the `.run.sh` found in the root of the project. You will, again, find more information on the FAQ Page of the project.
-
-The application is expected to be live in the near future.
+[See the FAQ](https://delphinus.mariinkys.dev/faq)
 
 ## Thanks
 
