@@ -61,10 +61,25 @@ export default {
             .then(data => data.json())
             .then(data => {
               if (data != null) {
-                const store = useFoundCharsStore()
-                store.updateData(data)
-                this.loading = false;
-                this.$router.push('results')
+                let somethingFound = false;
+                data.forEach((element: { Back: string; }) => {
+                  if (element.Back !== 'NOT FOUND') {
+                    somethingFound = true
+                  }
+                });
+
+                if (somethingFound) {
+                  const store = useFoundCharsStore()
+                  store.updateData(data)
+                  this.loading = false;
+                  this.$router.push('results')
+                } else {
+                  this.$toast.open({
+                    message: 'No results found',
+                    type: 'warning'
+                  });
+                  this.loading = false;
+                }
               } else {
                 this.$toast.open({
                   message: 'No results found',
