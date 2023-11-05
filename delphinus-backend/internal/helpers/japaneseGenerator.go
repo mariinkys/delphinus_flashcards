@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -42,23 +41,7 @@ type result struct {
 	Definition string
 }
 
-func RunJap(input string) (string, []string) {
-	parsedInput := parseJapInput(input)
-	dict := loadJapDictionary()
-
-	foundRes := searchJapDictionary(dict, parsedInput)
-
-	//TMP: TODO
-	notFoundRes := notFoundInJapDictionary(foundRes, parsedInput)
-	var nfSlice []string
-	for i := 0; i < len(notFoundRes); i++ {
-		nfSlice = append(nfSlice, notFoundRes[i].Kanji)
-	}
-
-	return generateJapOutput(foundRes), nfSlice
-}
-
-func NewRunJap(input string) []result {
+func RunJap(input string) []result {
 	parsedInput := parseJapInput(input)
 	dict := loadJapDictionary()
 
@@ -150,35 +133,22 @@ func searchJapDictionary(dict jMDict, charsArray []string) []result {
 	return resArray
 }
 
-func notFoundInJapDictionary(resArray []result, charsArray []string) []result {
-	var notFoundArray []result
+// func notFoundInJapDictionary(resArray []result, charsArray []string) []result {
+// 	var notFoundArray []result
 
-	if len(resArray) < len(charsArray) {
-		for _, c := range charsArray {
-			var found = false
-			for _, r := range resArray {
-				if c == r.Kanji {
-					found = true
-				}
-			}
-			if !found {
-				notFoundArray = append(notFoundArray, result{Kanji: c, Lecture: "", Definition: ""})
-			}
-		}
-	}
+// 	if len(resArray) < len(charsArray) {
+// 		for _, c := range charsArray {
+// 			var found = false
+// 			for _, r := range resArray {
+// 				if c == r.Kanji {
+// 					found = true
+// 				}
+// 			}
+// 			if !found {
+// 				notFoundArray = append(notFoundArray, result{Kanji: c, Lecture: "", Definition: ""})
+// 			}
+// 		}
+// 	}
 
-	return notFoundArray
-}
-
-func generateJapOutput(resArray []result) string {
-	var result string
-
-	for i, s := range resArray {
-		result += fmt.Sprint(s.Kanji + "/#*#/" + s.Lecture + " " + s.Definition + "\n")
-		if i != (len(resArray) - 1) {
-			result += fmt.Sprint("\\#" + "\n")
-		}
-	}
-
-	return result
-}
+// 	return notFoundArray
+// }

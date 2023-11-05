@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -18,22 +17,7 @@ type dictionaryEntry struct {
 	Definition string
 }
 
-func RunCh(input string) (string, []string) {
-	parsedInput := parseChInput(input)
-	dict := loadChDictionary()
-
-	foundRes := searchChDictionary(dict, parsedInput)
-
-	notFoundRes := notFoundInChDictionary(foundRes, parsedInput)
-	var nfSlice []string
-	for i := 0; i < len(notFoundRes); i++ {
-		nfSlice = append(nfSlice, notFoundRes[i].Kanji)
-	}
-
-	return generateChOutput(foundRes), nfSlice
-}
-
-func NewRunCh(input string) []dictionaryEntry {
+func RunCh(input string) []dictionaryEntry {
 	parsedInput := parseChInput(input)
 	dict := loadChDictionary()
 
@@ -131,17 +115,4 @@ func notFoundInChDictionary(resArray []dictionaryEntry, charsArray []string) []d
 	}
 
 	return notFoundArray
-}
-
-func generateChOutput(resArray []dictionaryEntry) string {
-	var result string
-
-	for i, s := range resArray {
-		result += fmt.Sprint(s.Kanji + "/#*#/" + s.Lecture + " | " + s.Definition + "\n")
-		if i != (len(resArray) - 1) {
-			result += fmt.Sprint("\\#" + "\n")
-		}
-	}
-
-	return result
 }
