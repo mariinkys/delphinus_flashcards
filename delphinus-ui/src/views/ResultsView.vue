@@ -6,22 +6,27 @@
       <v-btn @click="generateResults">No</v-btn>
    </div>
    <div v-if="wantsToCompose">
-      <v-row no-gutters v-for="flashcard in flashcards">
-         <v-col sm="6">
-            <v-text-field label="Front" variant="outlined" v-model="flashcard.Front"></v-text-field>
+      <v-row no-gutters v-for="(flashcard, index) in flashcards" :key="index">
+         <v-col sm="5">
+            <v-text-field label="Front" variant="outlined" v-model="flashcard.Front" :disabled="loading"></v-text-field>
          </v-col>
-         <v-col sm="6">
-            <v-text-field label="Back" variant="outlined" v-model="flashcard.Back"></v-text-field>
+         <v-col sm="5">
+            <v-text-field label="Back" variant="outlined" v-model="flashcard.Back" :disabled="loading"></v-text-field>
+         </v-col>
+         <v-col sm="2">
+            <v-btn @click="deleteFlashcard(index)" icon="mdi-delete-circle" color="red"></v-btn>
          </v-col>
       </v-row>
-      <v-btn @click="generateResults" color="primary">Generate</v-btn>
+      <v-btn @click="generateResults" color="primary" :disabled="loading">Generate</v-btn>
    </div>
 </template>
 
 <script lang="ts">
 import { useFoundCharsStore } from '@/stores/foundChars'
+import { useResultStore } from '@/stores/result'
 export default {
    data: () => ({
+      loading: false,
       flashcards: [{ Front: "", Back: "" }],
       wantsToCompose: false
    }),
@@ -39,7 +44,44 @@ export default {
    },
    methods: {
       async generateResults() {
-         console.log(this.flashcards)
+         try {
+            this.loading = true
+
+            const url = import.meta.env.VITE_API_ENDPOINT + "/generateflashcards"
+            await fetch(url, {
+               method: "POST",
+               mode: "cors",
+               cache: "no-cache",
+               headers: {
+                  "Content-Type": "application/json"
+               },
+               body: JSON.stringify(this.flashcards)
+            })
+               .then(data => data.json())
+               .then(data => {
+                  if (data != null) {
+                     this.loading = false;
+                     const store = useResultStore()
+                     store.updateData(data)
+                     this.$router.push('generated')
+                  } else {
+                     this.$toast.open({
+                        message: 'Something went wrong!',
+                        type: 'error',
+                     });
+                     this.loading = false;
+                  }
+               })
+         } catch (error) {
+            this.$toast.open({
+               message: 'Something went wrong!',
+               type: 'error',
+            });
+            this.loading = false;
+         }
+      },
+      deleteFlashcard(index: number) {
+         this.flashcards.splice(index, 1);
       }
    }
 }
