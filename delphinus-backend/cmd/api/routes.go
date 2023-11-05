@@ -19,6 +19,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Use(CorsMiddleware)
 
 	mux.Post("/searchdictionary", handlers.Repo.SearchDictionary)
+	mux.Post("/generateflashcards", handlers.Repo.GenerateFlashcards)
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/*", fileServer)

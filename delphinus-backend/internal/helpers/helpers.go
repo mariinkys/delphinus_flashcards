@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/mariinkys/delphinus-backend/internal/config"
+	"github.com/mariinkys/delphinus-backend/internal/models"
 )
 
 var app *config.AppConfig
@@ -43,4 +44,18 @@ func TrimRightString(s string, char string) string {
 		return s[:idx]
 	}
 	return s
+}
+
+// GenerateFlashcardsOutput Generates the output needed to import on Quizlet...
+func GenerateFlashcardsOutput(flashcards []models.Flashcard) string {
+	var result string
+
+	for i, s := range flashcards {
+		result += fmt.Sprint(s.Front + "/#*#/" + s.Back + "\n")
+		if i != (len(flashcards) - 1) {
+			result += fmt.Sprint("\\#" + "\n")
+		}
+	}
+
+	return result
 }

@@ -53,7 +53,7 @@ func (m *Repository) SearchDictionary(w http.ResponseWriter, r *http.Request) {
 	var flashcards []models.Flashcard
 	switch language {
 	case "jp":
-		res := helpers.NewRunJap(characterString)
+		res := helpers.RunJap(characterString)
 		w.WriteHeader(http.StatusCreated)
 
 		//TMP
@@ -63,7 +63,7 @@ func (m *Repository) SearchDictionary(w http.ResponseWriter, r *http.Request) {
 
 		json.NewEncoder(w).Encode(flashcards)
 	case "ch":
-		res := helpers.NewRunCh(characterString)
+		res := helpers.RunCh(characterString)
 		w.WriteHeader(http.StatusCreated)
 
 		//TMP
@@ -76,4 +76,19 @@ func (m *Repository) SearchDictionary(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode("Error")
 	}
+}
+
+// GenerateFlashcards is the handler for the GenerateFlashcards endpoint
+func (m *Repository) GenerateFlashcards(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var flashcards []models.Flashcard
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&flashcards); err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	var res = helpers.GenerateFlashcardsOutput(flashcards)
+	json.NewEncoder(w).Encode(res)
 }
