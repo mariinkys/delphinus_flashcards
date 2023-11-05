@@ -21,9 +21,12 @@ func RunCh(input string) ([]dictionaryEntry, []string) {
 	parsedInput := parseChInput(input)
 	dict := loadChDictionary()
 
-	foundRes := searchChDictionary(dict, parsedInput)
+	cleanInput := RemoveWhiteSpaces(parsedInput)
 
-	notFoundRes := notFoundInChDictionary(foundRes, parsedInput)
+	foundRes := searchChDictionary(dict, cleanInput)
+
+	notFoundRes := notFoundInChDictionary(foundRes, cleanInput)
+
 	var nfSlice []string
 	for i := 0; i < len(notFoundRes); i++ {
 		nfSlice = append(nfSlice, notFoundRes[i].Kanji)
@@ -98,18 +101,15 @@ func searchChDictionary(dict dictionary, charsArray []string) []dictionaryEntry 
 
 func notFoundInChDictionary(resArray []dictionaryEntry, charsArray []string) []dictionaryEntry {
 	var notFoundArray []dictionaryEntry
+	foundMap := make(map[string]bool)
 
-	if len(resArray) < len(charsArray) {
-		for _, c := range charsArray {
-			var found = false
-			for _, r := range resArray {
-				if c == r.Kanji {
-					found = true
-				}
-			}
-			if !found {
-				notFoundArray = append(notFoundArray, dictionaryEntry{Kanji: c, Lecture: "", Definition: ""})
-			}
+	for _, r := range resArray {
+		foundMap[r.Kanji] = true
+	}
+
+	for _, c := range charsArray {
+		if !foundMap[c] {
+			notFoundArray = append(notFoundArray, dictionaryEntry{Kanji: c, Lecture: "", Definition: ""})
 		}
 	}
 

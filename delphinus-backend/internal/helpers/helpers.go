@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+	"unicode"
 
 	"github.com/mariinkys/delphinus-backend/internal/config"
 	"github.com/mariinkys/delphinus-backend/internal/models"
@@ -58,4 +59,19 @@ func GenerateFlashcardsOutput(flashcards []models.Flashcard) string {
 	}
 
 	return result
+}
+
+// RemoveWhiteSpaces Removes whitespace from all words on a string array
+func RemoveWhiteSpaces(input []string) []string {
+	var output []string
+
+	for _, s := range input {
+		output = append(output, strings.Map(func(r rune) rune {
+			if unicode.IsSpace(r) {
+				return -1
+			}
+			return r
+		}, s))
+	}
+	return output
 }
