@@ -1,19 +1,26 @@
 <template>
-  <h1>Generate your flashcards!</h1>
+  <custom-title headerText="Generate your flashcards!" />
   <v-form @submit.prevent="submitForm" ref="generateForm">
     <v-textarea label="Characters" variant="outlined" v-model="characters" :rules="rules"
       :disabled="loading"></v-textarea>
+
     <v-radio-group v-model="language" :rules="rules" inline :disabled="loading">
       <v-radio label="Japanese" value="jp"></v-radio>
       <v-radio label="Chinese" value="ch"></v-radio>
     </v-radio-group>
-    <v-btn type="submit" :loading="loading" :disabled="loading" block class="mt-2">Submit</v-btn>
+
+    <v-btn type="submit" :loading="loading" :disabled="loading" block class="mt-2" color="primary">Submit</v-btn>
   </v-form>
 </template>
 
 <script lang="ts">
-import { useFoundCharsStore } from '@/stores/foundChars'
+import CustomTitle from "@/components/custom-title.vue";
+import { useFoundCharsStore } from '@/stores/foundChars';
+
 export default {
+  components: {
+    'custom-title': CustomTitle
+  },
   data: () => ({
     loading: false,
     characters: '',
@@ -78,3 +85,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.v-radio-group>.v-input__control {
+  align-items: center;
+}
+</style>

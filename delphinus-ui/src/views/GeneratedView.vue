@@ -1,11 +1,16 @@
 <template>
-   <h1>Generated!</h1>
-   <v-btn @click="copyToClipboard" color="primary">Copy Result</v-btn>
+   <custom-title header-text="Flashcards Generated!" />
+   <v-btn @click="copyToClipboard" color="primary" block class="mt-3">Copy Result</v-btn>
 </template>
 
 <script lang="ts">
+import CustomTitle from "@/components/custom-title.vue";
 import { useResultStore } from '@/stores/result'
+
 export default {
+   components: {
+      'custom-title': CustomTitle
+   },
    data: () => ({
       result: ''
    }),
