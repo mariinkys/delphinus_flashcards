@@ -53,7 +53,7 @@ func (m *Repository) SearchDictionary(w http.ResponseWriter, r *http.Request) {
 	var flashcards []models.Flashcard
 	switch language {
 	case "jp":
-		res := helpers.RunJap(characterString)
+		res, notFound := helpers.RunJap(characterString)
 		w.WriteHeader(http.StatusCreated)
 
 		//TMP
@@ -61,14 +61,26 @@ func (m *Repository) SearchDictionary(w http.ResponseWriter, r *http.Request) {
 			flashcards = append(flashcards, models.Flashcard{Front: s.Kanji, Back: s.Lecture + "|" + s.Definition})
 		}
 
+		if len(notFound) > 0 {
+			for _, s := range notFound {
+				flashcards = append(flashcards, models.Flashcard{Front: s, Back: "NOT FOUND"})
+			}
+		}
+
 		json.NewEncoder(w).Encode(flashcards)
 	case "ch":
-		res := helpers.RunCh(characterString)
+		res, notFound := helpers.RunCh(characterString)
 		w.WriteHeader(http.StatusCreated)
 
 		//TMP
 		for _, s := range res {
 			flashcards = append(flashcards, models.Flashcard{Front: s.Kanji, Back: s.Lecture + " | " + s.Definition})
+		}
+
+		if len(notFound) > 0 {
+			for _, s := range notFound {
+				flashcards = append(flashcards, models.Flashcard{Front: s, Back: "NOT FOUND"})
+			}
 		}
 
 		json.NewEncoder(w).Encode(flashcards)

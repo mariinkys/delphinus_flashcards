@@ -17,20 +17,19 @@ type dictionaryEntry struct {
 	Definition string
 }
 
-func RunCh(input string) []dictionaryEntry {
+func RunCh(input string) ([]dictionaryEntry, []string) {
 	parsedInput := parseChInput(input)
 	dict := loadChDictionary()
 
 	foundRes := searchChDictionary(dict, parsedInput)
 
-	//TMP: TODO
-	// notFoundRes := notFoundInJapDictionary(foundRes, parsedInput)
-	// var nfSlice []string
-	// for i := 0; i < len(notFoundRes); i++ {
-	// 	nfSlice = append(nfSlice, notFoundRes[i].Kanji)
-	// }
+	notFoundRes := notFoundInChDictionary(foundRes, parsedInput)
+	var nfSlice []string
+	for i := 0; i < len(notFoundRes); i++ {
+		nfSlice = append(nfSlice, notFoundRes[i].Kanji)
+	}
 
-	return foundRes
+	return foundRes, nfSlice
 }
 
 func parseChInput(input string) []string {
