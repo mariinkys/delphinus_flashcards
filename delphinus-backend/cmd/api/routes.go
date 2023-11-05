@@ -16,7 +16,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Use(middleware.Recoverer)
 	mux.Use(middleware.Logger) //TODO: Temporal Logger
 	mux.Use(SessionLoad)
-	mux.Use(CorsMiddleware)
+	//mux.Use(CorsMiddleware)
 
 	mux.Post("/searchdictionary", handlers.Repo.SearchDictionary)
 	mux.Post("/generateflashcards", handlers.Repo.GenerateFlashcards)

@@ -52,10 +52,10 @@ export default {
           await fetch(url, {
             method: "POST",
             mode: "cors",
-            cache: "no-cache",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded"
             },
+            credentials: 'include',
             body: formData
           })
             .then(data => data.json())

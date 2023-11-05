@@ -61,10 +61,10 @@ export default {
             await fetch(url, {
                method: "POST",
                mode: "cors",
-               cache: "no-cache",
                headers: {
                   "Content-Type": "application/json"
                },
+               credentials: 'omit',
                body: JSON.stringify(this.flashcards)
             })
                .then(data => data.json())
