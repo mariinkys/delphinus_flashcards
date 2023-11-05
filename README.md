@@ -1,6 +1,6 @@
 # Delphinus Flashcards
 
-This project contains a small web application written in Go that can generate flashcards compatible with Quizlet and Studysmarter(Vaia) for both Chinese and Japanese.
+This project contains a small web application written in Go and Vue that can generate flashcards compatible with Quizlet and Studysmarter(Vaia) for both Chinese and Japanese.
 
 ## Warning
 
