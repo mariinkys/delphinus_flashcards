@@ -1,5 +1,13 @@
 <template>
   <custom-title headerText="Generate your flashcards!" />
+  <div class="text-end my-3 d-none d-sm-block">
+    <v-btn density="compact" size="sm">
+      <v-icon icon="mdi-information" />
+      <v-tooltip activator="parent" location="start">For Japanese characters, you can separate the characters with the
+        Japanese '、' for Chinese characters, you can use the Chinese '，' for both of them, you can use the traditional ','
+        however, you cannot mix them within the same input.</v-tooltip>
+    </v-btn>
+  </div>
   <v-form @submit.prevent="submitForm" ref="generateForm">
     <v-textarea label="Characters" variant="outlined" v-model="characters" :rules="rules"
       :disabled="loading"></v-textarea>
