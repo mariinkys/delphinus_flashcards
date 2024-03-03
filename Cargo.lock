@@ -694,6 +694,7 @@ dependencies = [
  "leptos_router",
  "serde",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

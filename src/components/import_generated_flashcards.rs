@@ -11,14 +11,16 @@ pub fn ImportGeneratedFlashcards(import_string: String) -> impl IntoView {
             <button
                 class="btn btn-accent w-full"
                 on:click=move |_| {
-                    //Copy import_string to clipboard
+                    if let Some(clipboard) = window().navigator().clipboard() {
+                        //TODO: Notifications
+                        let _no = clipboard.write_text(&import_string);
+                    } else {
+                        //TODO: Notifications
+                    }
                 }
             >
                 "Copy to Clipboard"
             </button>
         </div>
-
-        <p class="mt-3">"DEBUG: "</p>
-        <p>{import_string}</p>
     }
 }
