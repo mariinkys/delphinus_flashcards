@@ -56,7 +56,7 @@ pub fn GeneratorPage() -> impl IntoView {
         } else {
             //TODO: Error handling (:
             set_loading(false);
-            navigate("/404", Default::default());
+            navigate("/noresults", Default::default());
         }
     };
 

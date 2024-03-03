@@ -24,21 +24,21 @@ pub fn NavbarComponent() -> impl IntoView {
                 </div>
                 <a class="btn btn-ghost text-xl" href="/">"Delphinus Flashcards"</a>
             </div>
-            <div class="navbar-center hidden lg:flex">
-                <ul class="menu menu-horizontal px-1">
-                    <li><a href="/generator">"Generate Flashcards"</a></li>
-                    // <li>
-                        // <details>
-                        //     <summary>"Parent"</summary>
-                        //     <ul class="p-2">
-                        //     <li><a>"Submenu 1"</a></li>
-                        //     <li><a>"Submenu 2"</a></li>
-                        //     </ul>
-                        // </details>
-                    // </li>
-                    // <li><a>"Item 3"</a></li>
-                </ul>
-            </div>
+            // <div class="navbar-center hidden lg:flex">
+            //     <ul class="menu menu-horizontal px-1">
+            //         <li><a href="/generator">"Generate Flashcards"</a></li>
+            //         // <li>
+            //             // <details>
+            //             //     <summary>"Parent"</summary>
+            //             //     <ul class="p-2">
+            //             //     <li><a>"Submenu 1"</a></li>
+            //             //     <li><a>"Submenu 2"</a></li>
+            //             //     </ul>
+            //             // </details>
+            //         // </li>
+            //         // <li><a>"Item 3"</a></li>
+            //     </ul>
+            // </div>
             <div class="navbar-end gap-2 flex items-center">
                 <label class="swap swap-rotate">
                     <input type="checkbox" class="theme-controller" value="dark" />
