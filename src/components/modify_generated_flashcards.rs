@@ -4,6 +4,7 @@ use crate::{
     components::{
         import_generated_flashcards::ImportGeneratedFlashcards, page_title::PageTitleComponent,
     },
+    pages::no_results::NoResultsPage,
     utils::{create_import_string, Flashcard},
 };
 
@@ -22,7 +23,7 @@ pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
 
             <Show
                 when=move || { !data.get().is_empty() }
-                fallback=move || view! { <h1>"No flashcards left."</h1> }
+                fallback=move || view! { <NoResultsPage/> }
             >
                 <div class="text-center m-auto p-2 max-w-7xl">
                     <For
