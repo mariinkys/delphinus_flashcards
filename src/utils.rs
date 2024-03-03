@@ -1,6 +1,5 @@
 use leptos::{server, RwSignal, ServerFnError, SignalGetUntracked};
 use serde::{Deserialize, Serialize};
-use std::fmt::Write;
 
 pub fn parse_ch_input(input: &str) -> Vec<&str> {
     let mut chars_array: Vec<&str> = Vec::new();
@@ -129,16 +128,10 @@ pub fn create_import_string(flashcards: Vec<Flashcard>) -> String {
     let mut result = String::new();
 
     for (i, entry) in flashcards.iter().enumerate() {
-        write!(
-            &mut result,
-            "{}/#*#/{}/",
-            entry.front.get_untracked(),
-            entry.back.get_untracked()
-        )
-        .expect("Error writing to string");
+        result = result + &entry.front.get_untracked() + "/#*#/" + &entry.back.get_untracked();
 
         if i + 1 != flashcards.len() {
-            result.push_str("\\#\n");
+            result.push_str("\n\\#\n");
         }
     }
 
