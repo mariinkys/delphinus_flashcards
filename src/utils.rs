@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use leptos::{server, RwSignal, ServerFnError, SignalGetUntracked};
 use serde::{Deserialize, Serialize};
 
@@ -104,6 +106,7 @@ pub async fn load_dictionary(dictionary_path: String) -> Result<Dictionary, Serv
 
 pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flashcard> {
     let mut res_array = Vec::new();
+    let mut found_chars = HashSet::new(); // Keep track of found characters
 
     // For each entry in the dictionary
     for entry in &dict.entries {
@@ -117,7 +120,20 @@ pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flash
                     back: format!("{} {}", entry.lecture, entry.definition).into(),
                 };
                 res_array.push(fc);
+                found_chars.insert(ch);
             }
+        }
+    }
+
+    // Check for characters not found in the dictionary
+    for &ch in &chars_array {
+        if !found_chars.contains(&ch.trim()) {
+            let fc: Flashcard = Flashcard {
+                id: 1,
+                front: ch.to_string().into(),
+                back: "NOT FOUND".to_string().into(), // Or handle it differently
+            };
+            res_array.push(fc);
         }
     }
 
