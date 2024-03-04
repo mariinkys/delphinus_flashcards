@@ -29,7 +29,7 @@ pub fn GeneratorPage() -> impl IntoView {
                     let parsed_chars = parse_ch_input(&clean_input);
 
                     //TODO: Maybe I can do this once on application load and cache it or something?
-                    match load_dictionary().await {
+                    match load_dictionary(String::from("dictionaries/ch/cedict_ts.u8")).await {
                         Ok(dictionary) => {
                             let found_results = search_dictionary(&dictionary, parsed_chars);
 
@@ -48,10 +48,29 @@ pub fn GeneratorPage() -> impl IntoView {
                     }
                 });
             } else if language.get() == "Japanese" {
-                let clean_input = remove_whitespace(&character_string.get());
-                let _parsed_chars = parse_jap_input(&clean_input);
+                spawn_local(async move {
+                    let clean_input = remove_whitespace(&character_string.get_untracked());
+                    let parsed_chars = parse_jap_input(&clean_input);
 
-                //TODO: Search dictionary
+                    //TODO: Maybe I can do this once on application load and cache it or something?
+                    match load_dictionary(String::from("dictionaries/jp/new_jmdict.txt")).await {
+                        Ok(dictionary) => {
+                            let found_results = search_dictionary(&dictionary, parsed_chars);
+
+                            if found_results.is_empty() {
+                                set_loading(false);
+                                navigate("/noresults", Default::default());
+                            } else {
+                                set_loading(false);
+                                set_results(found_results)
+                            }
+                        }
+                        Err(_) => {
+                            set_loading(false);
+                            navigate("/noresults", Default::default());
+                        }
+                    }
+                });
             }
         } else {
             //TODO: Error handling (:

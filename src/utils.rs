@@ -54,14 +54,14 @@ pub struct Flashcard {
 }
 
 #[server(LoadDictionary, "/loaddictionary")]
-pub async fn load_dictionary() -> Result<Dictionary, ServerFnError> {
+pub async fn load_dictionary(dictionary_path: String) -> Result<Dictionary, ServerFnError> {
     use leptos::logging::log;
     use std::{
         fs::File,
         io::{BufRead, BufReader},
     };
 
-    let file = File::open("dictionaries/ch/cedict_ts.u8").expect("Failed to open file");
+    let file = File::open(dictionary_path).expect("Failed to open file");
     let reader = BufReader::new(file);
     let mut dict = Dictionary {
         entries: Vec::new(),
