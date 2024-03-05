@@ -88,7 +88,7 @@ pub fn GeneratorPage() -> impl IntoView {
 
             <div class="max-w-4xl text-center m-auto p-2">
                 <div class="flex justify-end my-3">
-                    <div class="tooltip" data-tip="For Japanese characters, you can separate the characters with the Japanese '、' for Chinese characters, you can use the Chinese '，' for both of them, you can use the traditional ',' however, you cannot mix them within the same input.">
+                    <div class="tooltip tooltip-left" data-tip="For Japanese characters, you can separate the characters with the Japanese '、' for Chinese characters, you can use the Chinese '，' for both of them, you can use the traditional ',' however, you cannot mix them within the same input.">
                         <button class="btn btn-xs">"i"</button>
                     </div>
                 </div>
