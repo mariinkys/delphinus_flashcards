@@ -18,6 +18,11 @@ pub fn App() -> impl IntoView {
         // sets the document title
         <Title text="Delphinus Flashcards"/>
 
+        <Link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+        <Link rel="icon" type_="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+        <Link rel="icon" type_="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+        <Link rel="manifest" href="/assets/site.webmanifest" />
+
         <NavbarComponent/>
 
         <Router>
