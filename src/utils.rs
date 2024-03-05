@@ -107,6 +107,7 @@ pub async fn load_dictionary(dictionary_path: String) -> Result<Dictionary, Serv
 pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flashcard> {
     let mut res_array = Vec::new();
     let mut found_chars = HashSet::new(); // Keep track of found characters
+    let mut count = 1;
 
     // For each entry in the dictionary
     for entry in &dict.entries {
@@ -115,24 +116,27 @@ pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flash
             // If the character matches the kanji in the entry, append the entry to the result array
             if ch.trim() == entry.hanzi.trim() {
                 let fc: Flashcard = Flashcard {
-                    id: entry.id,
+                    id: count,
                     front: entry.hanzi.to_string().into(),
                     back: format!("{} {}", entry.lecture, entry.definition).into(),
                 };
+                count = count + 1;
                 res_array.push(fc);
                 found_chars.insert(ch);
             }
         }
     }
 
+    count = count + 1;
     // Check for characters not found in the dictionary
     for &ch in &chars_array {
         if !found_chars.contains(&ch.trim()) {
             let fc: Flashcard = Flashcard {
-                id: 1,
+                id: count,
                 front: ch.to_string().into(),
-                back: "NOT FOUND".to_string().into(), // Or handle it differently
+                back: "NOT FOUND".to_string().into(),
             };
+            count = count + 1;
             res_array.push(fc);
         }
     }
