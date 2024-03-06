@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use leptos::{server, RwSignal, ServerFnError, SignalGetUntracked};
 use serde::{Deserialize, Serialize};
@@ -109,6 +109,8 @@ pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flash
     let mut found_chars = HashSet::new(); // Keep track of found characters
     let mut count = 1;
 
+    let mut flashcards_map: HashMap<&str, Vec<Flashcard>> = HashMap::new();
+
     // For each entry in the dictionary
     for entry in &dict.entries {
         // For each character in the chars_array
@@ -121,7 +123,7 @@ pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flash
                     back: format!("{} {}", entry.lecture, entry.definition).into(),
                 };
                 count = count + 1;
-                res_array.push(fc);
+                flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
                 found_chars.insert(ch);
             }
         }
@@ -137,7 +139,16 @@ pub fn search_dictionary(dict: &Dictionary, chars_array: Vec<&str>) -> Vec<Flash
                 back: "NOT FOUND".to_string().into(),
             };
             count = count + 1;
-            res_array.push(fc);
+            flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
+        }
+    }
+
+    // Iterate over chars_array to maintain the order and push Flashcards from the HashMap into res_array
+    for ch in chars_array {
+        if let Some(flashcards) = flashcards_map.get(ch) {
+            for flashcard in flashcards {
+                res_array.push(flashcard.clone());
+            }
         }
     }
 
