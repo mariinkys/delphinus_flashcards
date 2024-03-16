@@ -18,11 +18,22 @@ async fn main() -> std::io::Result<()> {
     let routes = generate_route_list(App);
     println!("listening on http://{}", &addr);
 
+    let jap_dictionary = utils::load_jap_dictionary(String::from("dictionaries/jp/new_jmdict.txt"))
+        .await
+        .expect("Failed to load Japanese Dictionary");
+
+    let ch_dictionary = utils::load_ch_dictionary(String::from("dictionaries/ch/cedict_ts.u8"))
+        .await
+        .expect("Failed to load Japanese Dictionary");
+
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
         let site_root = &leptos_options.site_root;
 
         App::new()
+            //pass dictionaries
+            .app_data(web::Data::new(jap_dictionary.clone()))
+            .app_data(web::Data::new(ch_dictionary.clone()))
             // serve JS/WASM/CSS from `pkg`
             .service(Files::new("/pkg", format!("{site_root}/pkg")))
             // serve other assets from the `assets` directory

@@ -3,10 +3,7 @@ use leptos_router::use_navigate;
 
 use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
 use crate::components::{page_title::*, select_option::*};
-use crate::utils::{
-    load_dictionary, parse_ch_input, parse_jap_input, remove_whitespace, search_dictionary,
-    Flashcard,
-};
+use crate::utils::{remove_whitespace, search_dictionary, Flashcard};
 
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
@@ -26,13 +23,9 @@ pub fn GeneratorPage() -> impl IntoView {
             if language.get() == "Chinese" {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
-                    let parsed_chars = parse_ch_input(&clean_input);
 
-                    //TODO: Maybe I can do this once on application load and cache it or something?
-                    match load_dictionary(String::from("dictionaries/ch/cedict_ts.u8")).await {
-                        Ok(dictionary) => {
-                            let found_results = search_dictionary(&dictionary, parsed_chars);
-
+                    match search_dictionary(clean_input, true).await {
+                        Ok(found_results) => {
                             if found_results.is_empty() {
                                 set_loading(false);
                                 navigate("/noresults", Default::default());
@@ -50,13 +43,9 @@ pub fn GeneratorPage() -> impl IntoView {
             } else if language.get() == "Japanese" {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
-                    let parsed_chars = parse_jap_input(&clean_input);
 
-                    //TODO: Maybe I can do this once on application load and cache it or something?
-                    match load_dictionary(String::from("dictionaries/jp/new_jmdict.txt")).await {
-                        Ok(dictionary) => {
-                            let found_results = search_dictionary(&dictionary, parsed_chars);
-
+                    match search_dictionary(clean_input, false).await {
+                        Ok(found_results) => {
                             if found_results.is_empty() {
                                 set_loading(false);
                                 navigate("/noresults", Default::default());
