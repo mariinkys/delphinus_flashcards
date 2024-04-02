@@ -1,6 +1,13 @@
-# Delphinus Flashcards
+<h1 align="center">Delphinus Flashcards</h1>
 
-This project contains a small web application written in Rust with the [Leptos](https://leptos.dev/) framework, it can generate flashcards compatible with Quizlet and Studysmarter(Vaia) for both Chinese and Japanese.
+<p align="center">
+ <a href="https://delphinus.mariinkys.dev" target="_blank"><img src="https://github.com/mariinkys/delphinus_flashcards/blob/main/assets/delphinus_banner.png?raw=true"></a>
+</p>
+
+<p align="center">
+ This project contains a small web application written in Rust with the <a href="https://leptos.dev/" target="_blank">Leptos</a> framework, it can generate flashcards compatible with Quizlet and Studysmarter(Vaia) for both Chinese and Japanese.
+</p>
+
 
 ## Warning
 
