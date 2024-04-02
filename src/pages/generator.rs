@@ -62,7 +62,6 @@ pub fn GeneratorPage() -> impl IntoView {
                 });
             }
         } else {
-            //TODO: Error handling (:
             set_loading(false);
             navigate("/noresults", Default::default());
         }

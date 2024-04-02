@@ -263,7 +263,7 @@ pub async fn search_dictionary(
     Ok(res_array)
 }
 
-pub fn create_import_string(flashcards: Vec<Flashcard>) -> String {
+pub fn create_vaia_import_string(flashcards: &Vec<Flashcard>) -> String {
     let mut result = String::new();
 
     for (i, entry) in flashcards.iter().enumerate() {
@@ -271,6 +271,20 @@ pub fn create_import_string(flashcards: Vec<Flashcard>) -> String {
 
         if i + 1 != flashcards.len() {
             result.push_str("\n\\#\n");
+        }
+    }
+
+    result
+}
+
+pub fn create_quizlet_import_string(flashcards: &Vec<Flashcard>) -> String {
+    let mut result = String::new();
+
+    for (i, entry) in flashcards.iter().enumerate() {
+        result = result + &entry.front.get_untracked() + "\t" + &entry.back.get_untracked();
+
+        if i + 1 != flashcards.len() {
+            result.push_str("\n");
         }
     }
 

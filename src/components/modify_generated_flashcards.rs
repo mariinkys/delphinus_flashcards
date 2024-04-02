@@ -5,18 +5,20 @@ use crate::{
         import_generated_flashcards::ImportGeneratedFlashcards, page_title::PageTitleComponent,
     },
     pages::no_results::NoResultsPage,
-    utils::{create_import_string, Flashcard},
+    utils::Flashcard,
 };
 
 #[component]
 pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
     let (data, set_data) = create_signal(flashcards);
-    let (import_string, set_import_string) = create_signal(String::from(""));
+    let (import_flashcards, set_import_flashcards) = create_signal(false);
+
+    provide_context(data);
 
     view! {
         <Show
-            when=move || { import_string.get().len() == 0 }
-            fallback=move || view! { <ImportGeneratedFlashcards import_string=import_string.get()/> }
+            when=move || { import_flashcards.get() == false }
+            fallback=move || view! { <ImportGeneratedFlashcards/> }
         >
 
             <PageTitleComponent text="Modify Flashcards!"/>
@@ -50,8 +52,7 @@ pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
                         </div>
                     </For>
                     <button class="btn btn-primary mt-1 w-full" on:click=move |_| {
-                        //Process the data
-                        set_import_string(create_import_string(data.get()))
+                        set_import_flashcards(true)
                     }>"Generate"</button>
                 </div>
             </Show>
