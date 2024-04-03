@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
- This project contains a small web application written in Rust with the <a href="https://leptos.dev/" target="_blank">Leptos</a> framework, it can generate flashcards compatible with Quizlet and Studysmarter(Vaia) for both Chinese and Japanese.
+ This project contains a small web application written in Rust with the <a href="https://leptos.dev/" target="_blank">Leptos</a> framework, it can generate flashcards compatible with Quizlet, Studysmarter(Vaia) and Anki for both Chinese and Japanese.
 </p>
 
 
