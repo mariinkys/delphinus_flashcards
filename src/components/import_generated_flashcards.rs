@@ -5,7 +5,9 @@ use crate::{
         page_title::*,
         toast::{ToastMessage, ToastType},
     },
-    utils::{create_quizlet_import_string, create_vaia_import_string, Flashcard},
+    utils::{
+        create_anki_hex_file, create_quizlet_import_string, create_vaia_import_string, Flashcard,
+    },
 };
 
 #[component]
@@ -14,6 +16,9 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
     let flashcards = use_context::<ReadSignal<Vec<Flashcard>>>().expect("No flashcards provided");
 
     let set_toast: WriteSignal<ToastMessage> = expect_context();
+
+    let hex_anki_file = create_anki_hex_file(&flashcards.get_untracked());
+    let anki_href = format!("{}{}", String::from("data:text/plain,"), hex_anki_file);
 
     view! {
         <PageTitleComponent text="Import your flashcards!"/>
@@ -85,19 +90,20 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
         <div class="text-center m-auto p-2 max-w-7xl">
             <div class="card bg-base-100 shadow-xl w-full text-left">
                 <div class="card-body">
-                    <h2 class="card-title">"Import to Anki"</h2>
+                    <h2 class="card-title">"Import to Anki (Experimental Support)"</h2>
                     <ol class="px-4 list-decimal">
                         <li>"Download the generated Anki File"</li>
                         <li>"Use the Anki File to import your flashcards!"</li>
                     </ol>
                     <br/>
                     <div class="card-actions w-full">
-                        <button
+                        <a
                             class="btn btn-accent w-full"
-                            //TODO: ONCLICK
+                            download="anki_export.txt"
+                            href={anki_href}
                         >
                             "Download Anki File"
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

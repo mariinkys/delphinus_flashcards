@@ -290,3 +290,34 @@ pub fn create_quizlet_import_string(flashcards: &Vec<Flashcard>) -> String {
 
     result
 }
+
+pub fn create_anki_hex_file(flashcards: &Vec<Flashcard>) -> String {
+    let mut result = String::new();
+    result = result + "#separator:tab\n";
+    result = result + "#html:false\n";
+
+    for (i, entry) in flashcards.iter().enumerate() {
+        result = result + &entry.front.get_untracked() + "\t" + &entry.back.get_untracked();
+
+        if i + 1 != flashcards.len() {
+            result.push_str("\n");
+        }
+    }
+
+    encode_hex(&result)
+}
+
+fn encode_hex(input: &str) -> String {
+    let mut result = String::new();
+    for byte in input.bytes() {
+        // Encode special characters
+        if byte == b' ' {
+            result.push_str("%20");
+        } else if byte == b'\n' {
+            result.push_str("%0A");
+        } else {
+            result.push_str(&format!("%{:02X}", byte));
+        }
+    }
+    result
+}
