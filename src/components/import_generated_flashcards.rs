@@ -1,7 +1,10 @@
 use leptos::*;
 
 use crate::{
-    components::page_title::*,
+    components::{
+        page_title::*,
+        toast::{ToastMessage, ToastType},
+    },
     utils::{create_quizlet_import_string, create_vaia_import_string, Flashcard},
 };
 
@@ -9,6 +12,8 @@ use crate::{
 pub fn ImportGeneratedFlashcards() -> impl IntoView {
     //TODO: Handle error
     let flashcards = use_context::<ReadSignal<Vec<Flashcard>>>().expect("No flashcards provided");
+
+    let set_toast: WriteSignal<ToastMessage> = expect_context();
 
     view! {
         <PageTitleComponent text="Import your flashcards!"/>
@@ -32,11 +37,10 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
                                 class="btn btn-accent w-full"
                                 on:click=move |_| {
                                     if let Some(clipboard) = window().navigator().clipboard() {
-                                        //TODO: Notifications
-
                                         let _no = clipboard.write_text(&create_quizlet_import_string(&flashcards.get_untracked()));
+                                        set_toast.set(ToastMessage { message: String::from("Copied to Clipboard"), toast_type: ToastType::Success, visible: true });
                                     } else {
-                                        //TODO: Notifications
+                                        set_toast.set(ToastMessage { message: String::from("Error copying to Clipboard"), toast_type: ToastType::Error, visible: true });
                                     }
                                 }
                             >
@@ -62,11 +66,10 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
                                 class="btn btn-accent w-full"
                                 on:click=move |_| {
                                     if let Some(clipboard) = window().navigator().clipboard() {
-                                        //TODO: Notifications
-
                                         let _no = clipboard.write_text(&create_vaia_import_string(&flashcards.get_untracked()));
+                                        set_toast.set(ToastMessage { message: String::from("Copied to Clipboard"), toast_type: ToastType::Success, visible: true });
                                     } else {
-                                        //TODO: Notifications
+                                        set_toast.set(ToastMessage { message: String::from("Error copying to Clipboard"), toast_type: ToastType::Error, visible: true });
                                     }
                                 }
                             >

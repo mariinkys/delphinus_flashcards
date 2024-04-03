@@ -3,7 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::{
-    components::navbar::NavbarComponent,
+    components::{navbar::NavbarComponent, toast::ToastComponent},
     pages::{faq::*, generator::*, home::*, no_results::*, not_found::*},
 };
 
@@ -23,6 +23,7 @@ pub fn App() -> impl IntoView {
         <Link rel="icon" type_="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
         <Link rel="manifest" href="/assets/site.webmanifest" />
 
+        <ToastComponent/>
         <NavbarComponent/>
 
         <Router>
