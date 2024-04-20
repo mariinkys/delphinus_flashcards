@@ -34,10 +34,6 @@ export LEPTOS_RELOAD_PORT="3001"
 
 ## Thanks
 
-This software is possible thanks to many awesome projects, such as the [JMDict Project (Japanese Dictionary)](https://www.edrdg.org/jmdict/j_jmdict.html) and the [CC-CEDICT (Chinese Dictionary)](https://www.mdbg.net/chinese/dictionary?page=cedict).
-
-Also special thanks to [Greg Johnston](https://github.com/gbj) and the [Leptos Discord](https://discord.gg/x8NhWWYTV2) for always being there to help.
-
 You can also help do this and more projects, [Buy me a coffee](https://www.buymeacoffee.com/mariinkys)
 
 ## Acknowledgements
