@@ -1,0 +1,39 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Use Rust toolchain specified in rust-toolchain.toml
+      run: rustup override set --path $(pwd)
+
+    - name: Install cargo-leptos
+      run: cargo install --locked cargo-leptos
+
+    - name: Compile Leptos
+      run: RUSTFLAGS=--cfg=web_sys_unstable_apis cargo leptos build --release
+
+    - name: Prepare release package
+      run: |
+        mkdir release_package
+        cp -r target/release/site release_package/
+        cp target/release/delphinus release_package/
+        cp -r dictionaries release_package/
+        cd release_package
+        zip -r release_package.zip .
+      shell: bash
+
+    - name: Upload release package
+      uses: actions/upload-artifact@v2
+      with:
+        name: release_package
+        path: release_package/release_package.zip
