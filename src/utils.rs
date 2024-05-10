@@ -59,7 +59,7 @@ pub struct ChineseDictionary {
     entries: Vec<DictionaryEntry>,
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq, Hash)]
 pub struct Flashcard {
     pub id: u32,
     pub front: RwSignal<String>,
@@ -252,10 +252,14 @@ pub async fn search_dictionary(
     }
 
     // Iterate over chars_array to maintain the order and push Flashcards from the HashMap into res_array
+    let mut seen_flashcards = HashSet::new();
     for ch in chars_array {
         if let Some(flashcards) = flashcards_map.get(ch) {
             for flashcard in flashcards {
-                res_array.push(flashcard.clone());
+                if seen_flashcards.insert(flashcard.clone()) {
+                    // If flashcard is not already in seen_flashcards, insert it into res_array
+                    res_array.push(flashcard.clone());
+                }
             }
         }
     }
