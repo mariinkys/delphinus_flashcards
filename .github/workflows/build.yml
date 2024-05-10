@@ -36,7 +36,7 @@ jobs:
     - name: Prepare release package
       run: |
         mkdir release_package
-        cp -r target/release/site release_package/
+        cp -r target/site release_package/
         cp target/release/delphinus release_package/
         cp -r dictionaries release_package/
         cd release_package
