@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn SelectOption(is: &'static str, value: ReadSignal<String>) -> impl IntoView {

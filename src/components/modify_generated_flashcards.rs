@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 use crate::{
     components::{
@@ -10,8 +10,8 @@ use crate::{
 
 #[component]
 pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
-    let (data, set_data) = create_signal(flashcards);
-    let (import_flashcards, set_import_flashcards) = create_signal(false);
+    let (data, set_data) = signal(flashcards);
+    let (import_flashcards, set_import_flashcards) = signal(false);
 
     provide_context(data);
 

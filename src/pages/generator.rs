@@ -1,5 +1,7 @@
-use leptos::{ev::SubmitEvent, *};
-use leptos_router::use_navigate;
+use leptos::ev::SubmitEvent;
+use leptos::prelude::*;
+use leptos::spawn::spawn_local;
+use leptos_router::hooks::use_navigate;
 
 use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
 use crate::components::{page_title::*, select_option::*};
@@ -7,10 +9,10 @@ use crate::utils::{remove_whitespace, search_dictionary, Flashcard};
 
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
-    let (character_string, set_character_string) = create_signal("".to_string());
-    let (language, set_language) = create_signal("Chinese".to_string());
-    let (results, set_results) = create_signal(Vec::<Flashcard>::new());
-    let (loading, set_loading) = create_signal(false);
+    let (character_string, set_character_string) = signal("".to_string());
+    let (language, set_language) = signal("Chinese".to_string());
+    let (results, set_results) = signal(Vec::<Flashcard>::new());
+    let (loading, set_loading) = signal(false);
 
     let on_submit = move |ev: SubmitEvent| {
         // stop the page from reloading!
@@ -34,7 +36,8 @@ pub fn GeneratorPage() -> impl IntoView {
                                 set_results(found_results)
                             }
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            leptos::prelude::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }
@@ -54,7 +57,8 @@ pub fn GeneratorPage() -> impl IntoView {
                                 set_results(found_results)
                             }
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            leptos::prelude::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }

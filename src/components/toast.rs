@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use leptos::*;
+use leptos::prelude::*;
 
 #[derive(Clone)]
 pub enum ToastType {
@@ -17,7 +17,7 @@ pub struct ToastMessage {
 
 #[component]
 pub fn ToastComponent() -> impl IntoView {
-    let (toast, set_toast) = create_signal::<ToastMessage>(ToastMessage {
+    let (toast, set_toast) = signal::<ToastMessage>(ToastMessage {
         message: String::new(),
         toast_type: ToastType::Success,
         visible: false,
@@ -48,7 +48,7 @@ pub fn ToastComponent() -> impl IntoView {
         format!("{}", background_class)
     };
 
-    create_effect(move |_| {
+    Effect::new(move |_| {
         let t = toast.get();
         if t.visible {
             set_timeout(
@@ -63,7 +63,7 @@ pub fn ToastComponent() -> impl IntoView {
     });
 
     view! {
-        <div id="toast" class={toast_parent_classes}>
+        <div id="toast" class=toast_parent_classes>
             <div class={toast_child_classes}>
                 <span>{move || toast.get().message}</span>
             </div>
