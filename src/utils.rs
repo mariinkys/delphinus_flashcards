@@ -191,8 +191,7 @@ pub async fn search_dictionary(
         parse_jap_input(&chars_string)
     };
 
-    let jap_dictionary: Data<JapaneseDictionary> =
-        extract().await.expect("Cannot get Japanese Dictionary");
+    let jap_dictionary: Data<JapaneseDictionary> = extract().await?;
     let ch_dictionary: Data<ChineseDictionary> = extract().await?;
 
     let mut res_array = Vec::new();

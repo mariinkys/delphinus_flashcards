@@ -9,13 +9,13 @@ async fn main() -> std::io::Result<()> {
     use actix_files::Files;
     use actix_web::*;
     use delphinus::app::*;
+    use leptos::config::get_configuration;
     use leptos::prelude::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use leptos_meta::MetaTags;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
-    println!("listening on http://{}", &addr);
 
     let jap_dictionary = utils::load_jap_dictionary(String::from("dictionaries/jp/new_jmdict.txt"))
         .await
@@ -24,6 +24,8 @@ async fn main() -> std::io::Result<()> {
     let ch_dictionary = utils::load_ch_dictionary(String::from("dictionaries/ch/cedict_ts.u8"))
         .await
         .expect("Failed to load Japanese Dictionary");
+
+    println!("listening on http://{}", &addr);
 
     HttpServer::new(move || {
         let routes = generate_route_list(App);
@@ -59,8 +61,8 @@ async fn main() -> std::io::Result<()> {
             })
             .app_data(web::Data::new(leptos_options.to_owned()))
             //pass dictionaries
-            .app_data(web::Data::new(jap_dictionary.clone()))
-            .app_data(web::Data::new(ch_dictionary.clone()))
+            .app_data(web::Data::new(jap_dictionary.to_owned()))
+            .app_data(web::Data::new(ch_dictionary.to_owned()))
         //.wrap(middleware::Compress::default())
     })
     .bind(&addr)?
