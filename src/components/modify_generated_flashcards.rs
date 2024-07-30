@@ -17,14 +17,14 @@ pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
 
     view! {
         <Show
-            when=move || { import_flashcards.get() == false }
+            when=move || { import_flashcards.read() == false }
             fallback=move || view! { <ImportGeneratedFlashcards/> }
         >
 
             <PageTitleComponent text="Modify Flashcards!"/>
 
             <Show
-                when=move || { !data.get().is_empty() }
+                when=move || { !data.read().is_empty() }
                 fallback=move || view! { <NoResultsPage/> }
             >
                 <div class="text-center m-auto p-2 max-w-7xl">

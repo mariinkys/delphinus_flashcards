@@ -21,8 +21,8 @@ pub fn GeneratorPage() -> impl IntoView {
         let navigate = use_navigate();
 
         //Check data
-        if character_string.get().len() > 0 {
-            if language.get() == "Chinese" {
+        if character_string.read().len() > 0 {
+            if language.read() == String::from("Chinese") {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
 
@@ -43,7 +43,7 @@ pub fn GeneratorPage() -> impl IntoView {
                         }
                     }
                 });
-            } else if language.get() == "Japanese" {
+            } else if language.read() == String::from("Japanese") {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
 
