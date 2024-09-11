@@ -1,9 +1,7 @@
 use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::{
-    components::{FlatRoutes, Route, Router},
-    StaticSegment, WildcardSegment,
-};
+use leptos_router::components::{Route, Router, Routes};
+use leptos_router::path;
 
 use crate::{
     components::{navbar::NavbarComponent, toast::ToastComponent},
@@ -31,13 +29,13 @@ pub fn App() -> impl IntoView {
 
         <Router>
             <main>
-                <FlatRoutes fallback= move || "Not found">
-                    <Route path=StaticSegment("") view=HomePage/>
-                    <Route path=StaticSegment("/generator") view=GeneratorPage/>
-                    <Route path=StaticSegment("/noresults") view=NoResultsPage/>
-                    <Route path=StaticSegment("/faq") view=FaqPage/>
-                    <Route path=WildcardSegment("any") view=NotFound/>
-                </FlatRoutes>
+                <Routes fallback= move || "Not found">
+                    <Route path=path!("") view=HomePage/>
+                    <Route path=path!("/generator") view=GeneratorPage/>
+                    <Route path=path!("/noresults") view=NoResultsPage/>
+                    <Route path=path!("/faq") view=FaqPage/>
+                    <Route path=path!("any") view=NotFound/>
+                </Routes>
             </main>
         </Router>
 
