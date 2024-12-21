@@ -1,6 +1,7 @@
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::*;
+use leptos_router::components::{Route, Router, Routes};
+use leptos_router::path;
 
 use crate::{
     components::{navbar::NavbarComponent, toast::ToastComponent},
@@ -28,12 +29,12 @@ pub fn App() -> impl IntoView {
 
         <Router>
             <main>
-                <Routes>
-                    <Route path="" view=HomePage/>
-                    <Route path="/generator" view=GeneratorPage/>
-                    <Route path="/noresults" view=NoResultsPage/>
-                    <Route path="/faq" view=FaqPage/>
-                    <Route path="/*any" view=NotFound/>
+                <Routes fallback= move || "Not found">
+                    <Route path=path!("") view=HomePage/>
+                    <Route path=path!("/generator") view=GeneratorPage/>
+                    <Route path=path!("/noresults") view=NoResultsPage/>
+                    <Route path=path!("/faq") view=FaqPage/>
+                    <Route path=path!("any") view=NotFound/>
                 </Routes>
             </main>
         </Router>

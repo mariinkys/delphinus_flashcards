@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 use crate::{
     components::{
@@ -10,21 +10,21 @@ use crate::{
 
 #[component]
 pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
-    let (data, set_data) = create_signal(flashcards);
-    let (import_flashcards, set_import_flashcards) = create_signal(false);
+    let (data, set_data) = signal(flashcards);
+    let (import_flashcards, set_import_flashcards) = signal(false);
 
     provide_context(data);
 
     view! {
         <Show
-            when=move || { import_flashcards.get() == false }
+            when=move || { import_flashcards.read() == false }
             fallback=move || view! { <ImportGeneratedFlashcards/> }
         >
 
             <PageTitleComponent text="Modify Flashcards!"/>
 
             <Show
-                when=move || { !data.get().is_empty() }
+                when=move || { !data.read().is_empty() }
                 fallback=move || view! { <NoResultsPage/> }
             >
                 <div class="text-center m-auto p-2 max-w-7xl">

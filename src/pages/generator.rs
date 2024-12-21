@@ -1,5 +1,7 @@
-use leptos::{ev::SubmitEvent, *};
-use leptos_router::use_navigate;
+use leptos::ev::SubmitEvent;
+use leptos::prelude::*;
+use leptos::task::spawn_local;
+use leptos_router::hooks::use_navigate;
 
 use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
 use crate::components::{page_title::*, select_option::*};
@@ -7,10 +9,10 @@ use crate::utils::{remove_whitespace, search_dictionary, Flashcard};
 
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
-    let (character_string, set_character_string) = create_signal("".to_string());
-    let (language, set_language) = create_signal("Chinese".to_string());
-    let (results, set_results) = create_signal(Vec::<Flashcard>::new());
-    let (loading, set_loading) = create_signal(false);
+    let (character_string, set_character_string) = signal("".to_string());
+    let (language, set_language) = signal("Chinese".to_string());
+    let (results, set_results) = signal(Vec::<Flashcard>::new());
+    let (loading, set_loading) = signal(false);
 
     let on_submit = move |ev: SubmitEvent| {
         // stop the page from reloading!
@@ -19,8 +21,8 @@ pub fn GeneratorPage() -> impl IntoView {
         let navigate = use_navigate();
 
         //Check data
-        if character_string.get().len() > 0 {
-            if language.get() == "Chinese" {
+        if character_string.read().len() > 0 {
+            if language.read() == String::from("Chinese") {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
 
@@ -34,13 +36,14 @@ pub fn GeneratorPage() -> impl IntoView {
                                 set_results(found_results)
                             }
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            leptos::logging::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }
                     }
                 });
-            } else if language.get() == "Japanese" {
+            } else if language.read() == String::from("Japanese") {
                 spawn_local(async move {
                     let clean_input = remove_whitespace(&character_string.get_untracked());
 
@@ -54,7 +57,8 @@ pub fn GeneratorPage() -> impl IntoView {
                                 set_results(found_results)
                             }
                         }
-                        Err(_) => {
+                        Err(err) => {
+                            leptos::logging::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }

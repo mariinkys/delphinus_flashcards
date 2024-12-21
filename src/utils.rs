@@ -1,4 +1,5 @@
-use leptos::{server, RwSignal, ServerFnError, SignalGetUntracked};
+use leptos::prelude::{GetUntracked, RwSignal, ServerFnError};
+use leptos::server;
 use serde::{Deserialize, Serialize};
 
 pub fn parse_ch_input(input: &str) -> Vec<&str> {
@@ -208,8 +209,8 @@ pub async fn search_dictionary(
                 if ch.trim() == entry.hanzi.trim() {
                     let fc: Flashcard = Flashcard {
                         id: count,
-                        front: entry.hanzi.to_string().into(),
-                        back: format!("{} {}", entry.lecture, entry.definition).into(),
+                        front: RwSignal::new(entry.hanzi.to_string()),
+                        back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
                     };
                     count = count + 1;
                     flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
@@ -226,8 +227,8 @@ pub async fn search_dictionary(
                 if ch.trim() == entry.hanzi.trim() {
                     let fc: Flashcard = Flashcard {
                         id: count,
-                        front: entry.hanzi.to_string().into(),
-                        back: format!("{} {}", entry.lecture, entry.definition).into(),
+                        front: RwSignal::new(entry.hanzi.to_string()),
+                        back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
                     };
                     count = count + 1;
                     flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
@@ -243,8 +244,8 @@ pub async fn search_dictionary(
         if !found_chars.contains(&ch.trim()) {
             let fc: Flashcard = Flashcard {
                 id: count,
-                front: ch.to_string().into(),
-                back: "NOT FOUND".to_string().into(),
+                front: RwSignal::new(ch.to_string()),
+                back: RwSignal::new("NOT FOUND".to_string()),
             };
             count = count + 1;
             flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
