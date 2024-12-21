@@ -1,6 +1,6 @@
 use leptos::ev::SubmitEvent;
 use leptos::prelude::*;
-use leptos::spawn::spawn_local;
+use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
 
 use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
@@ -37,7 +37,7 @@ pub fn GeneratorPage() -> impl IntoView {
                             }
                         }
                         Err(err) => {
-                            leptos::prelude::error!("{}", err);
+                            leptos::logging::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }
@@ -58,7 +58,7 @@ pub fn GeneratorPage() -> impl IntoView {
                             }
                         }
                         Err(err) => {
-                            leptos::prelude::error!("{}", err);
+                            leptos::logging::error!("{}", err);
                             set_loading(false);
                             navigate("/noresults", Default::default());
                         }
