@@ -9,14 +9,14 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 actix-files = { version = "0.6", optional = true }
 actix-web = { version = "4.9.0", optional = true, features = ["macros"] }
-serde = { version = "1.0.217" }
+serde = { version = "1.0.218" }
 console_error_panic_hook = "0.1"
 http = { version = "1.2.0", optional = true }
 leptos = { version = "0.7.7", features = ["nightly"] }
 leptos_meta = { version = "0.7.7" }
 leptos_actix = { version = "0.7.7", optional = true }
 leptos_router = { version = "0.7.7", features = ["nightly"] }
-wasm-bindgen = "=0.2.100"
+wasm-bindgen = "=0.2.99"
 
 [features]
 csr = ["leptos/csr"]
@@ -40,7 +40,7 @@ panic = "abort"
 
 # https://github.com/leptos-rs/leptos/discussions/2399 (As of web-sys v0.3.70, the clipboard API is now stable, so no need for RUSTFLAGS)
 [dependencies.web-sys]
-version = "0.3.77"
+version = "0.3.76"
 features = ["Clipboard", "Navigator"]
 
 [package.metadata.leptos]
