@@ -26,13 +26,13 @@ pub fn ToastComponent() -> impl IntoView {
     provide_context::<WriteSignal<ToastMessage>>(set_toast);
 
     let base_toast_classes =
-        "toast toast-top toast-center transition-opacity duration-500 ease-in-out z-50";
+        "toast toast-top toast-center transition-opacity duration-500 ease-in-out z-100";
     let toast_parent_classes = move || -> String {
         let t = toast.read();
         let opacity_class = if t.visible == true {
-            "opacity-1".to_string()
+            "opacity-100 visible".to_string()
         } else {
-            "opacity-0".to_string()
+            "opacity-0 invisible".to_string()
         };
 
         format!("{} {}", base_toast_classes, opacity_class)
