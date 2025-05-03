@@ -28,7 +28,7 @@ WORKDIR /app
 COPY . .
 
 # Build the app
-RUN RUSTFLAGS=--cfg=web_sys_unstable_apis cargo leptos build --release -vv
+RUN cargo leptos build --release -vv
 
 FROM rustlang/rust:nightly-bullseye as runner
 

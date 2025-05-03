@@ -5,7 +5,7 @@ use leptos_router::hooks::use_navigate;
 
 use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
 use crate::components::{page_title::*, select_option::*};
-use crate::utils::{remove_whitespace, search_dictionary, Flashcard};
+use crate::utils::{Flashcard, remove_whitespace, search_dictionary};
 
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
@@ -87,7 +87,7 @@ pub fn GeneratorPage() -> impl IntoView {
 
                 <form class="w-full" on:submit=on_submit>
                     <textarea
-                        class="textarea textarea-bordered w-full h-80" placeholder="Enter character string"
+                        class="textarea textarea-primary w-full h-80" placeholder="Enter character string"
                         prop:value=move || character_string.get()
                         on:input=move |ev| { set_character_string(event_target_value(&ev)) }
                         disabled=loading
@@ -95,7 +95,7 @@ pub fn GeneratorPage() -> impl IntoView {
                     </textarea>
                     <br/>
                     <select
-                        class="select select-bordered w-full mt-3"
+                        class="select select-primary w-full mt-3"
                         on:change=move |ev| {
                             let new_language = event_target_value(&ev);
                             set_language(new_language);

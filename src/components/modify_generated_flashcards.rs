@@ -33,14 +33,14 @@ pub fn ModifyGeneratedFlashcards(flashcards: Vec<Flashcard>) -> impl IntoView {
                         key=|state| (state.id.clone(), state.id)
                         let:child
                     >
-                        <div class="flex flex-col sm:flex-row gap-2 p-2 border rounded-lg my-2 shadow-lg">
-                            <label class="input input-bordered flex items-center gap-2 font-bold">
+                        <div class="flex flex-col sm:flex-row gap-2 p-2 border border-primary rounded-lg my-2 shadow-lg">
+                            <label class="input flex items-center gap-2 font-bold">
                                 "Front"
                                 <input type="text" class="grow font-normal" name="front" id="front" value=child.front on:input=move |ev| {
                                     child.front.set(event_target_value(&ev));
                                 }/>
                             </label>
-                            <label class="input input-bordered flex items-center gap-2 font-bold flex-grow">
+                            <label class="input flex items-center gap-2 font-bold flex-grow">
                                 "Back"
                                 <input type="text" class="grow font-normal" name="back" id="back" value=child.back on:input=move |ev| {
                                     child.back.set(event_target_value(&ev));
