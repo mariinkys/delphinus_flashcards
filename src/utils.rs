@@ -36,7 +36,7 @@ pub fn remove_whitespace(input: &str) -> String {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct DictionaryEntry {
-    pub id: u32,
+    pub id: usize,
     pub hanzi: String,
     pub lecture: String,
     pub definition: String,
@@ -62,7 +62,7 @@ pub struct ChineseDictionary {
 
 #[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq, Hash)]
 pub struct Flashcard {
-    pub id: u32,
+    pub id: i32,
     pub front: RwSignal<String>,
     pub back: RwSignal<String>,
 }
@@ -86,44 +86,51 @@ pub async fn load_jap_dictionary(
     };
 
     let file = File::open(dictionary_path).expect("Failed to open file");
-    let reader = BufReader::new(file);
-    let mut dict = JapaneseDictionary {
-        entries: Vec::new(),
-    };
+    let reader = BufReader::with_capacity(64 * 1024, file);
 
-    let mut count = 0;
+    let mut entries = Vec::with_capacity(180000); // Could we overflow this?
 
-    for line in reader.lines() {
-        count = count + 1;
+    for (id, line) in reader.lines().enumerate() {
         let line = match line {
-            Ok(line) => line,
-            Err(_e) => {
+            Ok(l) => l,
+            Err(_) => {
                 log!("Error reading line");
                 continue; // Skip this line and continue with the next one
             }
         };
 
         let trimmed_line = line.trim();
+        if trimmed_line.is_empty() {
+            continue; // Skip empty lines
+        }
 
         // Extract lecture, hanzi, and definitions
-        let mut parts = trimmed_line.splitn(3, |c| c == '[' || c == ']');
-        let mut hanzi = parts.next().unwrap_or("").trim();
-        let lecture = parts.next().unwrap_or("").trim();
-        let definitions = parts.next().unwrap_or("").trim();
+        if let Some(start_bracket) = trimmed_line.find('[') {
+            if let Some(end_bracket) = trimmed_line.find(']') {
+                // Extract parts more efficiently
+                let hanzi_part = &trimmed_line[..start_bracket].trim();
+                let lecture = &trimmed_line[start_bracket + 1..end_bracket];
+                let definitions = &trimmed_line[end_bracket + 1..];
 
-        hanzi = hanzi.split(" ").last().unwrap_or("").trim();
+                // Get last word from hanzi part more efficiently
+                let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
-        // Add entry to dictionary
-        dict.entries.push(DictionaryEntry {
-            id: count,
-            hanzi: String::from(hanzi),
-            lecture: String::from(lecture),
-            definition: String::from(definitions),
-        });
+                // Only allocate if we have valid data
+                if !hanzi.is_empty() {
+                    entries.push(DictionaryEntry {
+                        id: id + 1,
+                        hanzi: hanzi.to_string(), // to_string() is equivalent but more idiomatic
+                        lecture: lecture.to_string(),
+                        definition: definitions.trim().to_string(),
+                    });
+                }
+            }
+        }
     }
 
+    entries.shrink_to_fit();
     // Return the populated dictionary
-    Ok(dict)
+    Ok(JapaneseDictionary { entries })
 }
 
 pub async fn load_ch_dictionary(
@@ -136,44 +143,51 @@ pub async fn load_ch_dictionary(
     };
 
     let file = File::open(dictionary_path).expect("Failed to open file");
-    let reader = BufReader::new(file);
-    let mut dict = ChineseDictionary {
-        entries: Vec::new(),
-    };
+    let reader = BufReader::with_capacity(64 * 1024, file);
 
-    let mut count = 0;
+    let mut entries = Vec::with_capacity(140000); // Could we overflow this?
 
-    for line in reader.lines() {
-        count = count + 1;
+    for (id, line) in reader.lines().enumerate() {
         let line = match line {
-            Ok(line) => line,
-            Err(_e) => {
+            Ok(l) => l,
+            Err(_) => {
                 log!("Error reading line");
                 continue; // Skip this line and continue with the next one
             }
         };
 
         let trimmed_line = line.trim();
+        if trimmed_line.is_empty() {
+            continue; // Skip empty lines
+        }
 
         // Extract lecture, hanzi, and definitions
-        let mut parts = trimmed_line.splitn(3, |c| c == '[' || c == ']');
-        let mut hanzi = parts.next().unwrap_or("").trim();
-        let lecture = parts.next().unwrap_or("").trim();
-        let definitions = parts.next().unwrap_or("").trim();
+        if let Some(start_bracket) = trimmed_line.find('[') {
+            if let Some(end_bracket) = trimmed_line.find(']') {
+                // Extract parts more efficiently
+                let hanzi_part = &trimmed_line[..start_bracket].trim();
+                let lecture = &trimmed_line[start_bracket + 1..end_bracket];
+                let definitions = &trimmed_line[end_bracket + 1..];
 
-        hanzi = hanzi.split(" ").last().unwrap_or("").trim();
+                // Get last word from hanzi part more efficiently
+                let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
-        // Add entry to dictionary
-        dict.entries.push(DictionaryEntry {
-            id: count,
-            hanzi: String::from(hanzi),
-            lecture: String::from(lecture),
-            definition: String::from(definitions),
-        });
+                // Only allocate if we have valid data
+                if !hanzi.is_empty() {
+                    entries.push(DictionaryEntry {
+                        id: id + 1,
+                        hanzi: hanzi.to_string(), // to_string() is equivalent but more idiomatic
+                        lecture: lecture.to_string(),
+                        definition: definitions.trim().to_string(),
+                    });
+                }
+            }
+        }
     }
 
+    entries.shrink_to_fit();
     // Return the populated dictionary
-    Ok(dict)
+    Ok(ChineseDictionary { entries })
 }
 
 #[server(SearchDictionary, "/searchdictionary")]
