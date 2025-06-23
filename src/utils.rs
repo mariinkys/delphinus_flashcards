@@ -195,81 +195,93 @@ pub async fn search_dictionary(
         parse_jap_input(&chars_string)
     };
 
-    let jap_dictionary: Data<JapaneseDictionary> = extract().await?;
-    let ch_dictionary: Data<ChineseDictionary> = extract().await?;
+    if chars_array.is_empty() {
+        return Ok(Vec::new());
+    }
 
-    let mut res_array = Vec::new();
-    let mut found_chars = HashSet::new(); // Keep track of found characters
-    let mut count = 1;
+    let mut flashcards = Vec::with_capacity(chars_array.len() * 2);
+    let mut seen_chars = HashSet::with_capacity(chars_array.len());
+    let mut id_counter = 1;
 
-    let mut flashcards_map: HashMap<&str, Vec<Flashcard>> = HashMap::new();
+    let search_chars: HashSet<&str> = chars_array.iter().map(|s| s.trim()).collect();
 
     if is_ch {
-        // For each entry in the dictionary
+        let ch_dictionary: Data<ChineseDictionary> = extract().await?;
+
+        // index only for characters we're searching for
+        let mut char_to_entries: HashMap<&str, Vec<&DictionaryEntry>> =
+            HashMap::with_capacity(search_chars.len());
+
         for entry in &ch_dictionary.entries {
-            // For each character in the chars_array
-            for &ch in &chars_array {
-                // If the character matches the kanji in the entry, append the entry to the result array
-                if ch.trim() == entry.hanzi.trim() {
-                    let fc: Flashcard = Flashcard {
-                        id: count,
-                        front: RwSignal::new(entry.hanzi.to_string()),
-                        back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
-                    };
-                    count = count + 1;
-                    flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
-                    found_chars.insert(ch);
+            let hanzi = entry.hanzi.trim();
+            if search_chars.contains(hanzi) {
+                char_to_entries.entry(hanzi).or_default().push(entry);
+            }
+        }
+
+        // loop in original order, avoiding duplicates
+        for &ch in &chars_array {
+            let trimmed_ch = ch.trim();
+            if seen_chars.insert(trimmed_ch) {
+                if let Some(entries) = char_to_entries.get(trimmed_ch) {
+                    for entry in entries {
+                        flashcards.push(Flashcard {
+                            id: id_counter,
+                            front: RwSignal::new(entry.hanzi.clone()),
+                            back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
+                        });
+                        id_counter += 1;
+                    }
+                } else {
+                    flashcards.push(Flashcard {
+                        id: id_counter,
+                        front: RwSignal::new(trimmed_ch.to_string()),
+                        back: RwSignal::new("NOT FOUND".to_string()),
+                    });
+                    id_counter += 1;
                 }
             }
         }
     } else {
-        // For each entry in the dictionary
+        let jap_dictionary: Data<JapaneseDictionary> = extract().await?;
+
+        // index only for characters we're searching for
+        let mut char_to_entries: HashMap<&str, Vec<&DictionaryEntry>> =
+            HashMap::with_capacity(search_chars.len());
+
         for entry in &jap_dictionary.entries {
-            // For each character in the chars_array
-            for &ch in &chars_array {
-                // If the character matches the kanji in the entry, append the entry to the result array
-                if ch.trim() == entry.hanzi.trim() {
-                    let fc: Flashcard = Flashcard {
-                        id: count,
-                        front: RwSignal::new(entry.hanzi.to_string()),
-                        back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
-                    };
-                    count = count + 1;
-                    flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
-                    found_chars.insert(ch);
+            let hanzi = entry.hanzi.trim();
+            if search_chars.contains(hanzi) {
+                char_to_entries.entry(hanzi).or_default().push(entry);
+            }
+        }
+
+        // loop in original order, avoiding duplicates
+        for &ch in &chars_array {
+            let trimmed_ch = ch.trim();
+            if seen_chars.insert(trimmed_ch) {
+                if let Some(entries) = char_to_entries.get(trimmed_ch) {
+                    for entry in entries {
+                        flashcards.push(Flashcard {
+                            id: id_counter,
+                            front: RwSignal::new(entry.hanzi.clone()),
+                            back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
+                        });
+                        id_counter += 1;
+                    }
+                } else {
+                    flashcards.push(Flashcard {
+                        id: id_counter,
+                        front: RwSignal::new(trimmed_ch.to_string()),
+                        back: RwSignal::new("NOT FOUND".to_string()),
+                    });
+                    id_counter += 1;
                 }
             }
         }
     }
 
-    count = count + 1;
-    // Check for characters not found in the dictionary
-    for &ch in &chars_array {
-        if !found_chars.contains(&ch.trim()) {
-            let fc: Flashcard = Flashcard {
-                id: count,
-                front: RwSignal::new(ch.to_string()),
-                back: RwSignal::new("NOT FOUND".to_string()),
-            };
-            count = count + 1;
-            flashcards_map.entry(ch).or_insert(Vec::new()).push(fc);
-        }
-    }
-
-    // Iterate over chars_array to maintain the order and push Flashcards from the HashMap into res_array
-    let mut seen_flashcards = HashSet::new();
-    for ch in chars_array {
-        if let Some(flashcards) = flashcards_map.get(ch) {
-            for flashcard in flashcards {
-                if seen_flashcards.insert(flashcard.clone()) {
-                    // If flashcard is not already in seen_flashcards, insert it into res_array
-                    res_array.push(flashcard.clone());
-                }
-            }
-        }
-    }
-
-    Ok(res_array)
+    Ok(flashcards)
 }
 
 pub fn create_vaia_import_string(flashcards: &Vec<Flashcard>) -> String {
