@@ -3,31 +3,21 @@ use leptos::server;
 use serde::{Deserialize, Serialize};
 
 pub fn parse_ch_input(input: &str) -> Vec<&str> {
-    let mut chars_array: Vec<&str> = Vec::new();
-    if input.contains(",") {
-        chars_array = input.split(",").collect();
-    } else if input.contains("，") {
-        chars_array = input.split("，").collect();
-    } else if input.is_empty() {
-        return chars_array; // Return empty vector
-    } else {
-        chars_array.push(input);
+    match input {
+        "" => Vec::new(),
+        s if s.contains(',') => s.split(',').collect(),
+        s if s.contains('，') => s.split('，').collect(),
+        s => vec![s],
     }
-    chars_array
 }
 
 pub fn parse_jap_input(input: &str) -> Vec<&str> {
-    let mut chars_array: Vec<&str> = Vec::new();
-    if input.contains(",") {
-        chars_array = input.split(",").collect();
-    } else if input.contains("、") {
-        chars_array = input.split("、").collect();
-    } else if input.is_empty() {
-        return chars_array; // Return empty vector
-    } else {
-        chars_array.push(input);
+    match input {
+        "" => Vec::new(),
+        s if s.contains(',') => s.split(',').collect(),
+        s if s.contains('、') => s.split('、').collect(),
+        s => vec![s],
     }
-    chars_array
 }
 
 pub fn remove_whitespace(input: &str) -> String {
