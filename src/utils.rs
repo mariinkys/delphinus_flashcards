@@ -342,3 +342,222 @@ fn encode_hex(input: &str) -> String {
     }
     result
 }
+
+#[cfg(test)]
+mod parse_tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_ch_input() {
+        assert_eq!(parse_ch_input(""), Vec::<&str>::new());
+        assert_eq!(parse_ch_input("你,好"), vec!["你", "好"]);
+        assert_eq!(parse_ch_input("你，好"), vec!["你", "好"]);
+        assert_eq!(parse_ch_input("你好"), vec!["你好"]);
+    }
+
+    #[test]
+    fn test_parse_jap_input() {
+        assert_eq!(parse_jap_input(""), Vec::<&str>::new());
+        assert_eq!(parse_jap_input("学,校"), vec!["学", "校"]);
+        assert_eq!(parse_jap_input("学、校"), vec!["学", "校"]);
+        assert_eq!(parse_jap_input("学校"), vec!["学校"]);
+    }
+
+    #[test]
+    fn test_remove_whitespace() {
+        assert_eq!(remove_whitespace(" a b c "), "abc");
+        assert_eq!(remove_whitespace("漢 字"), "漢字");
+        assert_eq!(remove_whitespace(""), "");
+    }
+}
+
+#[cfg(test)]
+mod dict_tests {
+    use super::*;
+    use std::io::BufRead;
+
+    async fn search_dictionary_internal(
+        chars_string: String,
+        is_ch: bool,
+        dict_entries: &[DictionaryEntry],
+    ) -> Vec<Flashcard> {
+        use std::collections::{HashMap, HashSet};
+
+        let chars_array = if is_ch {
+            parse_ch_input(&chars_string)
+        } else {
+            parse_jap_input(&chars_string)
+        };
+
+        if chars_array.is_empty() {
+            return Vec::new();
+        }
+
+        let mut flashcards = Vec::with_capacity(chars_array.len() * 2);
+        let mut seen_chars = HashSet::with_capacity(chars_array.len());
+        let mut id_counter = 1;
+
+        let search_chars: HashSet<&str> = chars_array.iter().map(|s| s.trim()).collect();
+
+        let mut char_to_entries: HashMap<&str, Vec<&DictionaryEntry>> =
+            HashMap::with_capacity(search_chars.len());
+
+        for entry in dict_entries {
+            let hanzi = entry.hanzi.trim();
+            if search_chars.contains(hanzi) {
+                char_to_entries.entry(hanzi).or_default().push(entry);
+            }
+        }
+
+        for &ch in &chars_array {
+            let trimmed_ch = ch.trim();
+            if seen_chars.insert(trimmed_ch) {
+                if let Some(entries) = char_to_entries.get(trimmed_ch) {
+                    for entry in entries {
+                        flashcards.push(Flashcard {
+                            id: id_counter,
+                            front: RwSignal::new(entry.hanzi.clone()),
+                            back: RwSignal::new(format!("{} {}", entry.lecture, entry.definition)),
+                        });
+                        id_counter += 1;
+                    }
+                } else {
+                    flashcards.push(Flashcard {
+                        id: id_counter,
+                        front: RwSignal::new(trimmed_ch.to_string()),
+                        back: RwSignal::new("NOT FOUND".to_string()),
+                    });
+                    id_counter += 1;
+                }
+            }
+        }
+
+        flashcards
+    }
+
+    #[tokio::test]
+    async fn test_search_dictionary_internal() {
+        let dict = vec![
+            DictionaryEntry {
+                id: 1,
+                hanzi: "你".to_string(),
+                lecture: "ni3".to_string(),
+                definition: "you".to_string(),
+            },
+            DictionaryEntry {
+                id: 2,
+                hanzi: "好".to_string(),
+                lecture: "hao3".to_string(),
+                definition: "good".to_string(),
+            },
+        ];
+
+        let result = search_dictionary_internal("你,好,他".to_string(), true, &dict).await;
+
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0].front.get_untracked(), "你");
+        assert_eq!(result[1].front.get_untracked(), "好");
+        assert_eq!(result[1].back.get_untracked(), "hao3 good");
+        assert_eq!(result[2].front.get_untracked(), "他");
+        assert_eq!(result[2].back.get_untracked(), "NOT FOUND");
+    }
+
+    #[test]
+    fn test_load_jap_dictionary_parsing() {
+        let data = "\
+                    お嫁さん [およめさん] wife
+                    お菓子 [おかし] confections | sweets | candy | cake
+                    お願いします [おねがいします] please
+                    お願いいたします [おねがいいたします] please
+                ";
+
+        let cursor = std::io::Cursor::new(data);
+
+        let reader = std::io::BufReader::new(cursor);
+        let mut entries = Vec::new();
+
+        for (id, line) in reader.lines().enumerate() {
+            let line = line.unwrap();
+            let trimmed_line = line.trim();
+            if trimmed_line.is_empty() {
+                continue;
+            }
+
+            if let Some(start_bracket) = trimmed_line.find('[') {
+                if let Some(end_bracket) = trimmed_line.find(']') {
+                    let hanzi_part = &trimmed_line[..start_bracket].trim();
+                    let lecture = &trimmed_line[start_bracket + 1..end_bracket];
+                    let definitions = &trimmed_line[end_bracket + 1..];
+
+                    let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
+
+                    if !hanzi.is_empty() {
+                        entries.push(DictionaryEntry {
+                            id: id + 1,
+                            hanzi: hanzi.to_string(),
+                            lecture: lecture.to_string(),
+                            definition: definitions.trim().to_string(),
+                        });
+                    }
+                }
+            }
+        }
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(entries[0].hanzi, "お嫁さん");
+        assert_eq!(entries[1].definition, "confections | sweets | candy | cake");
+    }
+
+    #[test]
+    fn test_load_ch_dictionary_parsing() {
+        let data = "\
+                    偩 偩 [fu4] /to rely on/to resemble/
+                    偪 逼 [bi1] /variant of 逼[bi1]/to compel/to pressure/
+                    偫 偫 [zhi4] /to wait for/to lay in/
+                    偭 偭 [mian3] /to transgress/
+                    偯 偯 [yi3] /to sob/wail/
+                    偰 偰 [xie4] /contract (variant of 契[qi4])/
+                    偱 偱 [xun2] /to tell/
+                    偲 偲 [si1] /talented/urgent/
+                ";
+
+        let cursor = std::io::Cursor::new(data);
+
+        let reader = std::io::BufReader::new(cursor);
+        let mut entries = Vec::new();
+
+        for (id, line) in reader.lines().enumerate() {
+            let line = line.unwrap();
+            let trimmed_line = line.trim();
+            if trimmed_line.is_empty() {
+                continue;
+            }
+
+            if let Some(start_bracket) = trimmed_line.find('[') {
+                if let Some(end_bracket) = trimmed_line.find(']') {
+                    let hanzi_part = &trimmed_line[..start_bracket].trim();
+                    let lecture = &trimmed_line[start_bracket + 1..end_bracket];
+                    let definitions = &trimmed_line[end_bracket + 1..];
+
+                    let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
+
+                    if !hanzi.is_empty() {
+                        entries.push(DictionaryEntry {
+                            id: id + 1,
+                            hanzi: hanzi.to_string(),
+                            lecture: lecture.to_string(),
+                            definition: definitions.trim().to_string(),
+                        });
+                    }
+                }
+            }
+        }
+
+        assert_eq!(entries.len(), 8);
+        assert_eq!(entries[0].hanzi, "偩");
+        assert_eq!(
+            entries[1].definition,
+            "/variant of 逼[bi1]/to compel/to pressure/"
+        );
+    }
+}
