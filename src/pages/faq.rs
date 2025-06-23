@@ -57,7 +57,7 @@ pub fn FaqPage() -> impl IntoView {
                 <div class="collapse-content">
                     <ol class="list-decimal px-5">
                         <li>"Copy the generated data using the Copy Button on the WebPage"</li>
-                        <li>"Open the "<a class="link-primary" href="https://app.hellovaia.com" target="_blank">"StudySmarter(Vaia) webpage"</a>" and within your 'Study Set' click on Create Flashcards and Upload Flashcards"</li>
+                        <li>"Open the "<a class="link-primary" href="https://app.vaia.com/home" target="_blank">"StudySmarter(Vaia) webpage"</a>" and within your 'Study Set' click on Create Flashcards and Upload Flashcards"</li>
                         <li>"Click on Import"</li>
                         <li>"Enjoy your flashcards!"</li>
                     </ol>
