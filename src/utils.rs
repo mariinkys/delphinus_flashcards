@@ -85,31 +85,27 @@ pub async fn load_jap_dictionary(
             Ok(l) => l,
             Err(_) => {
                 log!("Error reading line");
-                continue; // Skip this line and continue with the next one
+                continue; // skip this line and continue with the next one
             }
         };
 
         let trimmed_line = line.trim();
         if trimmed_line.is_empty() {
-            continue; // Skip empty lines
+            continue; // skip empty lines
         }
 
-        // Extract lecture, hanzi, and definitions
         if let Some(start_bracket) = trimmed_line.find('[') {
             if let Some(end_bracket) = trimmed_line.find(']') {
-                // Extract parts more efficiently
                 let hanzi_part = &trimmed_line[..start_bracket].trim();
                 let lecture = &trimmed_line[start_bracket + 1..end_bracket];
                 let definitions = &trimmed_line[end_bracket + 1..];
 
-                // Get last word from hanzi part more efficiently
                 let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
-                // Only allocate if we have valid data
                 if !hanzi.is_empty() {
                     entries.push(DictionaryEntry {
                         id: id + 1,
-                        hanzi: hanzi.to_string(), // to_string() is equivalent but more idiomatic
+                        hanzi: hanzi.to_string(),
                         lecture: lecture.to_string(),
                         definition: definitions.trim().to_string(),
                     });
@@ -119,7 +115,6 @@ pub async fn load_jap_dictionary(
     }
 
     entries.shrink_to_fit();
-    // Return the populated dictionary
     Ok(JapaneseDictionary { entries })
 }
 
@@ -142,31 +137,27 @@ pub async fn load_ch_dictionary(
             Ok(l) => l,
             Err(_) => {
                 log!("Error reading line");
-                continue; // Skip this line and continue with the next one
+                continue;
             }
         };
 
         let trimmed_line = line.trim();
         if trimmed_line.is_empty() {
-            continue; // Skip empty lines
+            continue; // skip empty lines
         }
 
-        // Extract lecture, hanzi, and definitions
         if let Some(start_bracket) = trimmed_line.find('[') {
             if let Some(end_bracket) = trimmed_line.find(']') {
-                // Extract parts more efficiently
                 let hanzi_part = &trimmed_line[..start_bracket].trim();
                 let lecture = &trimmed_line[start_bracket + 1..end_bracket];
                 let definitions = &trimmed_line[end_bracket + 1..];
 
-                // Get last word from hanzi part more efficiently
                 let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
-                // Only allocate if we have valid data
                 if !hanzi.is_empty() {
                     entries.push(DictionaryEntry {
                         id: id + 1,
-                        hanzi: hanzi.to_string(), // to_string() is equivalent but more idiomatic
+                        hanzi: hanzi.to_string(),
                         lecture: lecture.to_string(),
                         definition: definitions.trim().to_string(),
                     });
@@ -176,7 +167,6 @@ pub async fn load_ch_dictionary(
     }
 
     entries.shrink_to_fit();
-    // Return the populated dictionary
     Ok(ChineseDictionary { entries })
 }
 
