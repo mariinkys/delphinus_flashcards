@@ -11,19 +11,21 @@ async fn main() -> std::io::Result<()> {
     use delphinus::app::*;
     use leptos::config::get_configuration;
     use leptos::prelude::*;
-    use leptos_actix::{generate_route_list, LeptosRoutes};
+    use leptos_actix::{LeptosRoutes, generate_route_list};
     use leptos_meta::MetaTags;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
 
-    let jap_dictionary = utils::load_jap_dictionary(String::from("dictionaries/jp/new_jmdict.txt"))
-        .await
-        .expect("Failed to load Japanese Dictionary");
+    let jap_dictionary =
+        utils::JapaneseDictionary::init(String::from("dictionaries/jp/new_jmdict.txt"))
+            .await
+            .expect("Failed to load Japanese Dictionary");
 
-    let ch_dictionary = utils::load_ch_dictionary(String::from("dictionaries/ch/cedict_ts.u8"))
-        .await
-        .expect("Failed to load Japanese Dictionary");
+    let ch_dictionary =
+        utils::ChineseDictionary::init(String::from("dictionaries/ch/cedict_ts.u8"))
+            .await
+            .expect("Failed to load Chinese Dictionary");
 
     println!("listening on http://{}", &addr);
 
