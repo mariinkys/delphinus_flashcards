@@ -2,6 +2,13 @@ use leptos::prelude::*;
 use leptos::server;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "ssr")]
+use memmap2::Mmap;
+#[cfg(feature = "ssr")]
+use std::collections::HashMap;
+#[cfg(feature = "ssr")]
+use std::sync::Arc;
+
 pub fn parse_ch_input(input: &str) -> Vec<&str> {
     match input {
         "" => Vec::new(),
@@ -32,22 +39,18 @@ pub struct DictionaryEntry {
     pub definition: String,
 }
 
-//
-// At first there was only one struct dictionary but I do not know
-// how to extract the correct dicionary from actix if both the Japanese
-// and chinese dictionary have the same DataType so I've made two, at least for
-// now, it lets me load the dictionaries when the server starts instead of on
-// each request, improving the application speed.
-//
-
-#[derive(Serialize, Deserialize, Clone)]
+#[cfg(feature = "ssr")]
+#[derive(Clone)]
 pub struct JapaneseDictionary {
-    entries: Vec<DictionaryEntry>,
+    mmap: Arc<Mmap>,
+    line_offsets: Vec<(usize, usize)>, // (start, end) positions for each line
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[cfg(feature = "ssr")]
+#[derive(Clone)]
 pub struct ChineseDictionary {
-    entries: Vec<DictionaryEntry>,
+    mmap: Arc<Mmap>,
+    line_offsets: Vec<(usize, usize)>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq, Hash)]
@@ -57,41 +60,95 @@ pub struct Flashcard {
     pub back: RwSignal<String>,
 }
 
-//
-// At first there was only one struct dictionary and one load_dictionary
-// function, but I do not know
-// how to extract the correct dicionary from actix if both the Japanese
-// and chinese dictionary have the same DataType so I've made two, at least for
-// now, it lets me load the dictionaries when the server starts instead of on
-// each request, improving the application speed.
-//
+#[cfg(feature = "ssr")]
+impl ChineseDictionary {
+    /// Init the chinese dictionary
+    pub async fn init(dictionary_path: String) -> Result<ChineseDictionary, ServerFnError> {
+        use leptos::logging::log;
 
-pub async fn load_jap_dictionary(
-    dictionary_path: String,
-) -> Result<JapaneseDictionary, ServerFnError> {
-    use leptos::logging::log;
-    use std::{
-        fs::File,
-        io::{BufRead, BufReader},
-    };
+        let file = std::fs::File::open(dictionary_path).expect("Failed to open file");
+        let mmap = unsafe { memmap2::Mmap::map(&file).expect("Failed to create memory map") };
+        let mmap = std::sync::Arc::new(mmap);
 
-    let file = File::open(dictionary_path).expect("Failed to open file");
-    let reader = BufReader::with_capacity(64 * 1024, file);
+        // Build index of line positions instead of parsing all entries
+        let mut line_offsets = Vec::with_capacity(140000);
+        let mut start = 0;
 
-    let mut entries = Vec::with_capacity(180000); // Could we overflow this?
-
-    for (id, line) in reader.lines().enumerate() {
-        let line = match line {
-            Ok(l) => l,
-            Err(_) => {
-                log!("Error reading line");
-                continue; // skip this line and continue with the next one
+        for (pos, &byte) in mmap.iter().enumerate() {
+            if byte == b'\n' {
+                line_offsets.push((start, pos));
+                start = pos + 1;
             }
-        };
+        }
 
+        // Handle last line if file doesn't end with newline
+        if start < mmap.len() {
+            line_offsets.push((start, mmap.len()));
+        }
+
+        line_offsets.shrink_to_fit();
+        log!("Indexed {} lines in dictionary", line_offsets.len());
+
+        Ok(ChineseDictionary { mmap, line_offsets })
+    }
+
+    /// Get all entries of the dictionary
+    pub fn entries(&self) -> impl Iterator<Item = DictionaryEntry> + '_ {
+        self.line_offsets
+            .iter()
+            .enumerate()
+            .filter_map(|(id, &(start, end))| {
+                let line_bytes = &self.mmap[start..end];
+                if let Ok(line) = std::str::from_utf8(line_bytes) {
+                    self.parse_line(line, id)
+                } else {
+                    None
+                }
+            })
+    }
+
+    /// Search without loading all entries
+    pub fn search(&self, query: &str) -> Vec<DictionaryEntry> {
+        self.entries()
+            .filter(|entry| entry.hanzi.contains(query) || entry.definition.contains(query))
+            .collect()
+    }
+
+    /// Find entries for specific characters
+    pub fn find_entries_for_chars(
+        &self,
+        search_chars: &std::collections::HashSet<&str>,
+    ) -> HashMap<String, Vec<DictionaryEntry>> {
+        let mut char_to_entries: HashMap<String, Vec<DictionaryEntry>> =
+            HashMap::with_capacity(search_chars.len());
+
+        for (id, &(start, end)) in self.line_offsets.iter().enumerate() {
+            let line_bytes = &self.mmap[start..end];
+            if let Ok(line) = std::str::from_utf8(line_bytes) {
+                let contains_search_char = search_chars.iter().any(|&ch| line.contains(ch));
+                if !contains_search_char {
+                    continue;
+                }
+
+                if let Some(entry) = self.parse_line(line, id) {
+                    let hanzi = entry.hanzi.trim();
+                    if search_chars.contains(hanzi) {
+                        char_to_entries
+                            .entry(hanzi.to_string())
+                            .or_default()
+                            .push(entry);
+                    }
+                }
+            }
+        }
+
+        char_to_entries
+    }
+
+    fn parse_line(&self, line: &str, id: usize) -> Option<DictionaryEntry> {
         let trimmed_line = line.trim();
         if trimmed_line.is_empty() {
-            continue; // skip empty lines
+            return None;
         }
 
         if let Some(start_bracket) = trimmed_line.find('[') {
@@ -99,11 +156,10 @@ pub async fn load_jap_dictionary(
                 let hanzi_part = &trimmed_line[..start_bracket].trim();
                 let lecture = &trimmed_line[start_bracket + 1..end_bracket];
                 let definitions = &trimmed_line[end_bracket + 1..];
-
                 let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
                 if !hanzi.is_empty() {
-                    entries.push(DictionaryEntry {
+                    return Some(DictionaryEntry {
                         id: id + 1,
                         hanzi: hanzi.to_string(),
                         lecture: lecture.to_string(),
@@ -112,38 +168,99 @@ pub async fn load_jap_dictionary(
                 }
             }
         }
+        None
     }
-
-    entries.shrink_to_fit();
-    Ok(JapaneseDictionary { entries })
 }
 
-pub async fn load_ch_dictionary(
-    dictionary_path: String,
-) -> Result<ChineseDictionary, ServerFnError> {
-    use leptos::logging::log;
-    use std::{
-        fs::File,
-        io::{BufRead, BufReader},
-    };
+#[cfg(feature = "ssr")]
+impl JapaneseDictionary {
+    /// Init the chinese dictionary
+    pub async fn init(dictionary_path: String) -> Result<JapaneseDictionary, ServerFnError> {
+        use leptos::logging::log;
 
-    let file = File::open(dictionary_path).expect("Failed to open file");
-    let reader = BufReader::with_capacity(64 * 1024, file);
+        let file = std::fs::File::open(dictionary_path).expect("Failed to open file");
+        let mmap = unsafe { memmap2::Mmap::map(&file).expect("Failed to create memory map") };
+        let mmap = std::sync::Arc::new(mmap);
 
-    let mut entries = Vec::with_capacity(140000); // Could we overflow this?
+        // Build index of line positions instead of parsing all entries
+        let mut line_offsets = Vec::with_capacity(140000);
+        let mut start = 0;
 
-    for (id, line) in reader.lines().enumerate() {
-        let line = match line {
-            Ok(l) => l,
-            Err(_) => {
-                log!("Error reading line");
-                continue;
+        for (pos, &byte) in mmap.iter().enumerate() {
+            if byte == b'\n' {
+                line_offsets.push((start, pos));
+                start = pos + 1;
             }
-        };
+        }
 
+        // Handle last line if file doesn't end with newline
+        if start < mmap.len() {
+            line_offsets.push((start, mmap.len()));
+        }
+
+        line_offsets.shrink_to_fit();
+        log!("Indexed {} lines in dictionary", line_offsets.len());
+
+        Ok(JapaneseDictionary { mmap, line_offsets })
+    }
+
+    /// Get all entries of the dictionary
+    pub fn entries(&self) -> impl Iterator<Item = DictionaryEntry> + '_ {
+        self.line_offsets
+            .iter()
+            .enumerate()
+            .filter_map(|(id, &(start, end))| {
+                let line_bytes = &self.mmap[start..end];
+                if let Ok(line) = std::str::from_utf8(line_bytes) {
+                    self.parse_line(line, id)
+                } else {
+                    None
+                }
+            })
+    }
+
+    /// Method to search without loading all entries
+    pub fn search(&self, query: &str) -> Vec<DictionaryEntry> {
+        self.entries()
+            .filter(|entry| entry.hanzi.contains(query) || entry.definition.contains(query))
+            .collect()
+    }
+
+    /// Find entries for specific characters
+    pub fn find_entries_for_chars(
+        &self,
+        search_chars: &std::collections::HashSet<&str>,
+    ) -> HashMap<String, Vec<DictionaryEntry>> {
+        let mut char_to_entries: HashMap<String, Vec<DictionaryEntry>> =
+            HashMap::with_capacity(search_chars.len());
+
+        for (id, &(start, end)) in self.line_offsets.iter().enumerate() {
+            let line_bytes = &self.mmap[start..end];
+            if let Ok(line) = std::str::from_utf8(line_bytes) {
+                let contains_search_char = search_chars.iter().any(|&ch| line.contains(ch));
+                if !contains_search_char {
+                    continue;
+                }
+
+                if let Some(entry) = self.parse_line(line, id) {
+                    let hanzi = entry.hanzi.trim();
+                    if search_chars.contains(hanzi) {
+                        char_to_entries
+                            .entry(hanzi.to_string())
+                            .or_default()
+                            .push(entry);
+                    }
+                }
+            }
+        }
+
+        char_to_entries
+    }
+
+    fn parse_line(&self, line: &str, id: usize) -> Option<DictionaryEntry> {
         let trimmed_line = line.trim();
         if trimmed_line.is_empty() {
-            continue; // skip empty lines
+            return None;
         }
 
         if let Some(start_bracket) = trimmed_line.find('[') {
@@ -151,11 +268,10 @@ pub async fn load_ch_dictionary(
                 let hanzi_part = &trimmed_line[..start_bracket].trim();
                 let lecture = &trimmed_line[start_bracket + 1..end_bracket];
                 let definitions = &trimmed_line[end_bracket + 1..];
-
                 let hanzi = hanzi_part.split_whitespace().last().unwrap_or("").trim();
 
                 if !hanzi.is_empty() {
-                    entries.push(DictionaryEntry {
+                    return Some(DictionaryEntry {
                         id: id + 1,
                         hanzi: hanzi.to_string(),
                         lecture: lecture.to_string(),
@@ -164,10 +280,8 @@ pub async fn load_ch_dictionary(
                 }
             }
         }
+        None
     }
-
-    entries.shrink_to_fit();
-    Ok(ChineseDictionary { entries })
 }
 
 #[server(SearchDictionary, "/searchdictionary")]
@@ -177,7 +291,7 @@ pub async fn search_dictionary(
 ) -> Result<Vec<Flashcard>, ServerFnError> {
     use actix_web::web::Data;
     use leptos_actix::extract;
-    use std::collections::{HashMap, HashSet};
+    use std::collections::HashSet;
 
     let chars_array = if is_ch {
         parse_ch_input(&chars_string)
@@ -197,19 +311,8 @@ pub async fn search_dictionary(
 
     if is_ch {
         let ch_dictionary: Data<ChineseDictionary> = extract().await?;
+        let char_to_entries = ch_dictionary.find_entries_for_chars(&search_chars);
 
-        // index only for characters we're searching for
-        let mut char_to_entries: HashMap<&str, Vec<&DictionaryEntry>> =
-            HashMap::with_capacity(search_chars.len());
-
-        for entry in &ch_dictionary.entries {
-            let hanzi = entry.hanzi.trim();
-            if search_chars.contains(hanzi) {
-                char_to_entries.entry(hanzi).or_default().push(entry);
-            }
-        }
-
-        // loop in original order, avoiding duplicates
         for &ch in &chars_array {
             let trimmed_ch = ch.trim();
             if seen_chars.insert(trimmed_ch) {
@@ -234,23 +337,12 @@ pub async fn search_dictionary(
         }
     } else {
         let jap_dictionary: Data<JapaneseDictionary> = extract().await?;
+        let char_to_entries = jap_dictionary.find_entries_for_chars(&search_chars);
 
-        // index only for characters we're searching for
-        let mut char_to_entries: HashMap<&str, Vec<&DictionaryEntry>> =
-            HashMap::with_capacity(search_chars.len());
-
-        for entry in &jap_dictionary.entries {
-            let hanzi = entry.hanzi.trim();
-            if search_chars.contains(hanzi) {
-                char_to_entries.entry(hanzi).or_default().push(entry);
-            }
-        }
-
-        // loop in original order, avoiding duplicates
-        for &ch in &chars_array {
-            let trimmed_ch = ch.trim();
-            if seen_chars.insert(trimmed_ch) {
-                if let Some(entries) = char_to_entries.get(trimmed_ch) {
+        for &jp in &chars_array {
+            let trimmed_jp = jp.trim();
+            if seen_chars.insert(trimmed_jp) {
+                if let Some(entries) = char_to_entries.get(trimmed_jp) {
                     for entry in entries {
                         flashcards.push(Flashcard {
                             id: id_counter,
@@ -262,7 +354,7 @@ pub async fn search_dictionary(
                 } else {
                     flashcards.push(Flashcard {
                         id: id_counter,
-                        front: RwSignal::new(trimmed_ch.to_string()),
+                        front: RwSignal::new(trimmed_jp.to_string()),
                         back: RwSignal::new("NOT FOUND".to_string()),
                     });
                     id_counter += 1;

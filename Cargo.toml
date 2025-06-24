@@ -17,6 +17,7 @@ leptos_meta = { version = "0.8.2" }
 leptos_actix = { version = "0.8.2", optional = true }
 leptos_router = { version = "0.8.2", features = ["nightly"] }
 wasm-bindgen = "=0.2.100"
+memmap2 = { version = "0.9.5", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.45.1", features = ["macros", "rt"] }
@@ -31,6 +32,8 @@ ssr = [
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
+
+  "dep:memmap2",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
