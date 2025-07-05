@@ -2,17 +2,17 @@ use leptos::prelude::*;
 
 use crate::{
     components::{
+        dialog::DialogComponent,
         page_title::*,
         toast::{ToastMessage, ToastType},
     },
     utils::{
-        create_anki_hex_file, create_quizlet_import_string, create_vaia_import_string, Flashcard,
+        Flashcard, create_anki_hex_file, create_quizlet_import_string, create_vaia_import_string,
     },
 };
 
 #[component]
 pub fn ImportGeneratedFlashcards() -> impl IntoView {
-    //TODO: Handle error
     let flashcards = use_context::<ReadSignal<Vec<Flashcard>>>().expect("No flashcards provided");
 
     let set_toast: WriteSignal<ToastMessage> = expect_context();
@@ -20,8 +20,30 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
     let hex_anki_file = create_anki_hex_file(&flashcards.get_untracked());
     let anki_href = format!("{}{}", String::from("data:text/plain,"), hex_anki_file);
 
+    let import_dialog_ref_node: NodeRef<leptos::html::Dialog> = NodeRef::new();
+    let import_string = RwSignal::new(String::new());
+
     view! {
         <PageTitleComponent text="Import your flashcards!"/>
+
+        <DialogComponent dialog_title="Import Flashcards" dialog_node_ref=import_dialog_ref_node dialog_content=move || view! {
+            <div class="flex flex-col gap-2">
+                <textarea
+                    class="textarea textarea-primary w-full min-h-80"
+                    disabled="true"
+                >
+                    {import_string}
+                </textarea>
+                <button class="btn btn-accent w-full" on:click=move |_| {
+                        let clipboard = window().navigator().clipboard();
+                        let _no = clipboard.write_text(&import_string.get_untracked());
+                        set_toast.set(ToastMessage { message: String::from("Copied to Clipboard"), toast_type: ToastType::Success, visible: true });
+                    }
+                >
+                "Copy to Clipboard"
+                </button>
+            </div>
+        }/>
 
         <div class="text-center m-auto p-2 max-w-7xl">
             <div class="sm:flex-row flex flex-col gap-2 mt-3">
@@ -41,9 +63,8 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
                             <button
                                 class="btn btn-accent w-full"
                                 on:click=move |_| {
-                                    let clipboard = window().navigator().clipboard();
-                                    let _no = clipboard.write_text(&create_quizlet_import_string(&flashcards.get_untracked()));
-                                    set_toast.set(ToastMessage { message: String::from("Copied to Clipboard"), toast_type: ToastType::Success, visible: true });
+                                    import_string.set(create_quizlet_import_string(&flashcards.get_untracked()));
+                                    let _ = import_dialog_ref_node.get().unwrap().show_modal();
                                 }
                             >
                                 "Copy Quizlet Import String"
@@ -67,9 +88,8 @@ pub fn ImportGeneratedFlashcards() -> impl IntoView {
                             <button
                                 class="btn btn-accent w-full"
                                 on:click=move |_| {
-                                    let clipboard = window().navigator().clipboard();
-                                    let _no = clipboard.write_text(&create_vaia_import_string(&flashcards.get_untracked()));
-                                    set_toast.set(ToastMessage { message: String::from("Copied to Clipboard"), toast_type: ToastType::Success, visible: true });
+                                    import_string.set(create_vaia_import_string(&flashcards.get_untracked()));
+                                    let _ = import_dialog_ref_node.get().unwrap().show_modal();
                                 }
                             >
                                 "Copy Vaia Import String"
