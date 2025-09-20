@@ -12,22 +12,35 @@ pub fn NavbarComponent() -> impl IntoView {
     Effect::new(move |_| {
         #[cfg(target_arch = "wasm32")]
         #[allow(clippy::collapsible_if)]
-        if let Some(win) = window() {
-            if let Ok(media_query) = win.match_media("(prefers-color-scheme: dark)") {
-                #[allow(clippy::collapsible_match)]
-                if let Some(mq) = media_query {
-                    dark_mode.set(mq.matches());
+        if let Some(stored_theme) = get_stored_theme() {
+            dark_mode.set(stored_theme);
+        } else {
+            if let Some(win) = window() {
+                if let Ok(media_query) = win.match_media("(prefers-color-scheme: dark)") {
+                    #[allow(clippy::collapsible_match)]
+                    if let Some(mq) = media_query {
+                        dark_mode.set(mq.matches());
+                    }
                 }
             }
         };
     });
 
     Effect::new(move |_| {
+        #[cfg(target_arch = "wasm32")]
         let theme = if dark_mode.get() { "dark" } else { "light" };
-        if let Some(document) = web_sys::window().unwrap().document()
-            && let Some(html) = document.document_element()
+
+        #[cfg(target_arch = "wasm32")]
         {
-            html.set_attribute("data-theme", theme).unwrap();
+            // apply theme
+            if let Some(document) = web_sys::window().unwrap().document()
+                && let Some(html) = document.document_element()
+            {
+                html.set_attribute("data-theme", theme).unwrap();
+            }
+
+            // save to localStorage
+            save_theme_preference(dark_mode.get());
         }
     });
 
@@ -56,5 +69,31 @@ pub fn NavbarComponent() -> impl IntoView {
                 <a class="btn btn-primary hidden sm:flex" href="/faq">"FAQ"</a>
             </div>
         </div>
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn get_local_storage() -> Option<web_sys::Storage> {
+    window()?.local_storage().ok().flatten()
+}
+
+// Get stored theme preference
+#[cfg(target_arch = "wasm32")]
+fn get_stored_theme() -> Option<bool> {
+    let storage = get_local_storage()?;
+    let theme = storage.get_item("theme").ok().flatten()?;
+    match theme.as_str() {
+        "dark" => Some(true),
+        "light" => Some(false),
+        _ => None,
+    }
+}
+
+// Save theme preference
+#[cfg(target_arch = "wasm32")]
+fn save_theme_preference(is_dark: bool) {
+    if let Some(storage) = get_local_storage() {
+        let theme = if is_dark { "dark" } else { "light" };
+        let _ = storage.set_item("theme", theme);
     }
 }

@@ -44,7 +44,7 @@ panic = "abort"
 # https://github.com/leptos-rs/leptos/discussions/2399 (As of web-sys v0.3.70, the clipboard API is now stable, so no need for RUSTFLAGS)
 [dependencies.web-sys]
 version = "0.3.80"
-features = ["Clipboard", "Navigator", "Window", "MediaQueryList"]
+features = ["Clipboard", "Navigator", "Window", "MediaQueryList", "Storage"]
 
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name   
