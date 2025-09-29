@@ -1,7 +1,5 @@
-<h1 align="center">Delphinus</h1>
-
 <p align="center">
- <a href="https://delphinus.mariinkys.dev" target="_blank"><img src="https://github.com/mariinkys/delphinus/blob/main/assets/delphinus_banner.png?raw=true"></a>
+ <a href="https://delphinus.mariinkys.dev" target="_blank"><img alt="Delphinus" src="https://github.com/mariinkys/delphinus/blob/main/assets/delphinus_banner.png?raw=true"></a>
 </p>
 
 <p align="center">
