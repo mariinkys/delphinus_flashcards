@@ -1,11 +1,11 @@
 use leptos::prelude::*;
-use std::sync::Arc;
 
 #[server(OCRImage, "/ocr")]
 pub async fn ocr_image(bytes: Vec<u8>) -> Result<String, ServerFnError> {
     use actix_web::web::Data;
     use leptos_actix::extract;
     use oar_ocr::prelude::*;
+    use std::sync::Arc;
 
     let oarocr: Data<Arc<OAROCR>> = extract().await?;
     let image = oar_ocr::utils::image::load_image_from_memory(&bytes)?;
@@ -27,10 +27,11 @@ pub async fn ocr_image(bytes: Vec<u8>) -> Result<String, ServerFnError> {
     if clean_result.is_empty() {
         Ok(String::new())
     } else {
-        Ok(clean_result.join(","))
+        Ok(clean_result.join(", "))
     }
 }
 
+#[cfg(feature = "ssr")]
 fn filter_cjk(text: &str) -> String {
     let mut inside_parens = false;
 

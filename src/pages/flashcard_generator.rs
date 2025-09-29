@@ -4,13 +4,16 @@ use leptos::task::spawn_local;
 
 use crate::{
     components::{
-        PageTitleComponent, SelectOption, flashcard_generation::ModifyGeneratedFlashcards,
+        DialogComponent, PageTitleComponent, SelectOption, ToastType,
+        flashcard_generation::ModifyGeneratedFlashcards, toast::ToastMessage,
     },
     core::flashcard_generation::flashcard::{Flashcard, remove_whitespace, search_dictionary},
 };
 
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
+    let set_toast: WriteSignal<ToastMessage> = expect_context();
+
     let (character_string, set_character_string) = signal(String::new());
     let (language, set_language) = signal("Chinese".to_string());
     let (results, set_results) = signal(Vec::<Flashcard>::new());
@@ -47,6 +50,54 @@ pub fn GeneratorPage() -> impl IntoView {
         }
     };
 
+    let ocr_dialog_ref_node: NodeRef<leptos::html::Dialog> = NodeRef::new();
+    let file_input = NodeRef::<leptos::html::Input>::new();
+    let ocr_image = RwSignal::new(None);
+    let ocr_upload_loading = RwSignal::new(false);
+    let on_image_submit = move |ev: leptos::ev::SubmitEvent| {
+        // stop the page from reloading!
+        ev.prevent_default();
+
+        if !ocr_upload_loading.get() && ocr_image.get_untracked().is_some() {
+            ocr_upload_loading.set(true);
+
+            // TODO: How to make loading appear on submit click (why does it wait for a while? file uploading?)
+            spawn_local(async move {
+                let image_bytes: Vec<u8> = ocr_image.get_untracked().unwrap();
+
+                match crate::core::flashcard_generation::ocr::ocr_image(image_bytes).await {
+                    Ok(result_string) => {
+                        if character_string.get_untracked().is_empty() {
+                            set_character_string(result_string);
+                        } else {
+                            set_character_string
+                                .update(|value| *value = format! {"{}, {}", value, result_string});
+                        };
+
+                        set_toast.set(ToastMessage {
+                            message: String::from("Success"),
+                            toast_type: ToastType::Success,
+                            visible: true,
+                        });
+                        ocr_image.set(None);
+                        ocr_upload_loading.set(false);
+                    }
+                    Err(err) => {
+                        set_toast.set(ToastMessage {
+                            message: format!("Err {err}"),
+                            toast_type: ToastType::Error,
+                            visible: true,
+                        });
+                        ocr_image.set(None);
+                        ocr_upload_loading.set(false);
+                    }
+                }
+            });
+        }
+
+        //ocr_dialog_ref_node.get().unwrap().close();
+    };
+
     view! {
         <Show
             when=move || { results().is_empty() }
@@ -54,8 +105,47 @@ pub fn GeneratorPage() -> impl IntoView {
         >
             <PageTitleComponent text="Generate Flashcards!"/>
 
+            <DialogComponent dialog_title="OCR Image" dialog_node_ref=ocr_dialog_ref_node dialog_content=move || view! {
+                <form class="flex flex-col gap-3" on:submit=on_image_submit>
+                    <label class="label" for="ocr_image">"OCR Image"</label>
+                        <input id="ocr_image" disabled=ocr_upload_loading type="file" accept="image/*" class="file-input w-full" node_ref=file_input on:change=move |_ev| {
+                            if let Some(files) = file_input.get().unwrap().files()
+                                && let Some(file) = files.get(0) {
+                                    let file_type = crate::core::utils::is_extension_image(&file);
+                                    if file_type.is_none() {
+                                        set_toast.set(ToastMessage {
+                                            message: String::from("Not a valid image"),
+                                            toast_type: ToastType::Error,
+                                            visible: true,
+                                        });
+                                        ocr_image.set(None);
+                                    } else {
+                                        spawn_local(async move {
+                                            let promise = file.array_buffer();
+                                            if let Ok(js_value) = wasm_bindgen_futures::JsFuture::from(promise).await {
+                                                let bytes = web_sys::js_sys::Uint8Array::new(&js_value).to_vec();
+                                                ocr_image.set(Some(bytes));
+                                            } else {
+                                                ocr_image.set(None);
+                                            }
+                                        });
+                                    }
+                                }
+                        }
+                    />
+
+                    <button disabled=ocr_upload_loading class="btn btn-primary mt-3 w-full" type="submit">"Upload"</button>
+                </form>
+            }/>
+
             <div class="max-w-4xl text-center m-auto p-2">
-                <div class="flex justify-end my-3">
+                <div class="flex justify-between my-3 items-center">
+                    <button
+                        class="btn btn-sm btn-accent"
+                        on:click=move |_| {
+                            let _ = ocr_dialog_ref_node.get().unwrap().show_modal();
+                        }
+                    >"OCR"</button>
                     <div class="tooltip tooltip-left" data-tip="For Japanese characters, you can separate the characters with the Japanese '、' for Chinese characters, you can use the Chinese '，' for both of them, you can use the traditional ',' however, you cannot mix them within the same input.">
                         <button class="btn btn-xs">"i"</button>
                     </div>

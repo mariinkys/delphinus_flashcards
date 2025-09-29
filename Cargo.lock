@@ -804,6 +804,7 @@ dependencies = [
  "oar-ocr",
  "serde",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

@@ -20,6 +20,7 @@ wasm-bindgen = "=0.2.103"
 # Added by me
 serde = { version = "1.0.228" }
 oar-ocr = { git = "https://github.com/mariinkys/oar-ocr", branch = "load_from_memory", optional = true }
+wasm-bindgen-futures = "0.4.53"                                                                          #needed for file upload
 memmap2 = { version = "0.9.8", optional = true }
 
 [features]
@@ -48,7 +49,15 @@ panic = "abort"
 # https://github.com/leptos-rs/leptos/discussions/2399 (As of web-sys v0.3.70, the clipboard API is now stable, so no need for RUSTFLAGS)
 [dependencies.web-sys]
 version = "0.3.80"
-features = ["Clipboard", "Navigator", "Window", "MediaQueryList", "Storage"]
+features = [
+  "Clipboard",
+  "Navigator",
+  "Window",
+  "MediaQueryList",
+  "Storage",
+  "File",
+  "FileList",
+]
 
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
