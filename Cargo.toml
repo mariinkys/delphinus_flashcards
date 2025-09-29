@@ -19,6 +19,7 @@ wasm-bindgen = "=0.2.103"
 
 # Added by me
 serde = { version = "1.0.228" }
+oar-ocr = { git = "https://github.com/mariinkys/oar-ocr", branch = "load_from_memory", optional = true }
 memmap2 = { version = "0.9.8", optional = true }
 
 [features]
@@ -33,6 +34,7 @@ ssr = [
   "leptos_router/ssr",
 
   "dep:memmap2",
+  "dep:oar-ocr",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
