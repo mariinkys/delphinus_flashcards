@@ -2,7 +2,8 @@ use leptos::prelude::*;
 
 use crate::{
     components::{
-        import_generated_flashcards::ImportGeneratedFlashcards, page_title::PageTitleComponent,
+        flashcard_gen::import_generated_flashcards::ImportGeneratedFlashcards,
+        page_title::PageTitleComponent,
     },
     pages::no_results::NoResultsPage,
     utils::Flashcard,

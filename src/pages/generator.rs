@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
 
-use crate::components::modify_generated_flashcards::ModifyGeneratedFlashcards;
+use crate::components::flashcard_gen::modify_generated_flashcards::ModifyGeneratedFlashcards;
 use crate::components::{page_title::*, select_option::*};
 use crate::utils::{Flashcard, remove_whitespace, search_dictionary};
 

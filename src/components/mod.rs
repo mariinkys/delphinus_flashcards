@@ -1,6 +1,5 @@
 pub mod dialog;
-pub mod import_generated_flashcards;
-pub mod modify_generated_flashcards;
+pub mod flashcard_gen;
 pub mod navbar;
 pub mod page_title;
 pub mod select_option;
