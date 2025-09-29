@@ -2,13 +2,8 @@ use leptos::prelude::*;
 use leptos::server;
 use serde::{Deserialize, Serialize};
 
-mod chinese_dict;
-mod japanese_dict;
-
 #[cfg(feature = "ssr")]
-pub use chinese_dict::ChineseDictionary;
-#[cfg(feature = "ssr")]
-pub use japanese_dict::JapaneseDictionary;
+use crate::core::flashcard_generation::dictionaries;
 
 pub fn parse_ch_input(input: &str) -> Vec<&str> {
     match input {
@@ -73,7 +68,7 @@ pub async fn search_dictionary(
     let search_chars: HashSet<&str> = chars_array.iter().map(|s| s.trim()).collect();
 
     if is_ch {
-        let ch_dictionary: Data<chinese_dict::ChineseDictionary> = extract().await?;
+        let ch_dictionary: Data<dictionaries::ChineseDictionary> = extract().await?;
         let char_to_entries = ch_dictionary.find_entries_for_chars(&search_chars);
 
         for &ch in &chars_array {
@@ -99,7 +94,7 @@ pub async fn search_dictionary(
             }
         }
     } else {
-        let jap_dictionary: Data<japanese_dict::JapaneseDictionary> = extract().await?;
+        let jap_dictionary: Data<dictionaries::JapaneseDictionary> = extract().await?;
         let char_to_entries = jap_dictionary.find_entries_for_chars(&search_chars);
 
         for &jp in &chars_array {

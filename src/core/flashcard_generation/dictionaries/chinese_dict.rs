@@ -8,19 +8,19 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 #[cfg(feature = "ssr")]
-use crate::utils::DictionaryEntry;
+use crate::core::flashcard_generation::flashcard::DictionaryEntry;
 
 #[cfg(feature = "ssr")]
 #[derive(Clone)]
-pub struct JapaneseDictionary {
+pub struct ChineseDictionary {
     mmap: Arc<Mmap>,
-    line_offsets: Vec<(usize, usize)>, // (start, end) positions for each line
+    line_offsets: Vec<(usize, usize)>,
 }
 
 #[cfg(feature = "ssr")]
-impl JapaneseDictionary {
+impl ChineseDictionary {
     /// Init the chinese dictionary
-    pub async fn init(dictionary_path: String) -> Result<JapaneseDictionary, ServerFnError> {
+    pub async fn init(dictionary_path: String) -> Result<ChineseDictionary, ServerFnError> {
         use leptos::logging::log;
 
         let file = std::fs::File::open(dictionary_path).expect("Failed to open file");
@@ -44,12 +44,9 @@ impl JapaneseDictionary {
         }
 
         line_offsets.shrink_to_fit();
-        log!(
-            "Indexed {} lines in japanese dictionary",
-            line_offsets.len()
-        );
+        log!("Indexed {} lines in chinese dictionary", line_offsets.len());
 
-        Ok(JapaneseDictionary { mmap, line_offsets })
+        Ok(ChineseDictionary { mmap, line_offsets })
     }
 
     /// Get all entries of the dictionary
@@ -67,7 +64,7 @@ impl JapaneseDictionary {
             })
     }
 
-    /// Method to search without loading all entries
+    /// Search without loading all entries
     pub fn search(&self, query: &str) -> Vec<DictionaryEntry> {
         self.entries()
             .filter(|entry| entry.hanzi.contains(query) || entry.definition.contains(query))

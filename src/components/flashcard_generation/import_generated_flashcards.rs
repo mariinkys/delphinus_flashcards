@@ -6,7 +6,7 @@ use crate::{
         page_title::*,
         toast::{ToastMessage, ToastType},
     },
-    utils::{
+    core::flashcard_generation::flashcard::{
         Flashcard, create_anki_hex_file, create_quizlet_import_string, create_vaia_import_string,
     },
 };

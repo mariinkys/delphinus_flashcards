@@ -2,11 +2,10 @@ use leptos::prelude::*;
 
 use crate::{
     components::{
-        flashcard_gen::import_generated_flashcards::ImportGeneratedFlashcards,
-        page_title::PageTitleComponent,
+        PageTitleComponent,
+        flashcard_generation::{ImportGeneratedFlashcards, no_results::NoResultsPage},
     },
-    pages::no_results::NoResultsPage,
-    utils::Flashcard,
+    core::flashcard_generation::flashcard::Flashcard,
 };
 
 #[component]

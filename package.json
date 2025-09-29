@@ -1,6 +1,23 @@
 {
+  "name": "delphinus",
+  "version": "0.7.0",
+  "description": "Flashcard Generation, Japanese and Chinese Learning Application",
+  "main": "src/main.rs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariinkys/delphinus.git"
+  },
+  "author": "mariinkys",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mariinkys/delphinus/issues"
+  },
+  "homepage": "https://github.com/mariinkys/delphinus#readme",
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.18",
-    "daisyui": "^5.1.13"
+    "@tailwindcss/typography": "^0.5.19",
+    "daisyui": "^5.1.25"
   }
 }

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: GPL-3.0-only
-
 use leptos::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
@@ -56,7 +54,7 @@ pub fn NavbarComponent() -> impl IntoView {
                         <li><a href="/faq">"FAQ"</a></li>
                     </ul>
                 </div>
-                <a class="btn btn-ghost text-xl" href="/">"Delphinus Flashcards"</a>
+                <a class="btn btn-ghost text-xl" href="/">"Delphinus"</a>
             </div>
             <div class="navbar-end gap-2 flex items-center">
                 <label class="swap swap-rotate">

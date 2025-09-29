@@ -1,11 +1,11 @@
-pub mod app;
 pub mod components;
+pub mod core;
 pub mod pages;
-pub mod utils;
 
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    use crate::core::flashcard_generation::dictionaries;
     use actix_files::Files;
     use actix_web::*;
     use delphinus::app::*;
@@ -18,18 +18,19 @@ async fn main() -> std::io::Result<()> {
     let addr = conf.leptos_options.site_addr;
 
     let jap_dictionary =
-        utils::JapaneseDictionary::init(String::from("dictionaries/jp/new_jmdict.txt"))
+        dictionaries::JapaneseDictionary::init(String::from("dictionaries/jp/new_jmdict.txt"))
             .await
             .expect("Failed to load Japanese Dictionary");
 
     let ch_dictionary =
-        utils::ChineseDictionary::init(String::from("dictionaries/ch/cedict_ts.u8"))
+        dictionaries::ChineseDictionary::init(String::from("dictionaries/ch/cedict_ts.u8"))
             .await
             .expect("Failed to load Chinese Dictionary");
 
     println!("listening on http://{}", &addr);
 
     HttpServer::new(move || {
+        // Generate the list of routes in your Leptos App
         let routes = generate_route_list(App);
         let leptos_options = &conf.leptos_options;
         let site_root = leptos_options.site_root.clone().to_string();
@@ -98,8 +99,6 @@ pub fn main() {
     // prefer using `cargo leptos serve` instead
     // to run: `trunk serve --open --features csr`
     use delphinus::app::*;
-    use leptos::*;
-    use wasm_bindgen::prelude::wasm_bindgen;
 
     console_error_panic_hook::set_once();
 
