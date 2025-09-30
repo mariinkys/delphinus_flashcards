@@ -91,7 +91,7 @@ pub fn FaqPage() -> impl IntoView {
                 <div class="collapse-content">
                     <ol class="list-disc px-5">
                         <li>"For OCR this project makes use of the awesome " <a class="link-primary" href="https://github.com/GreatV/oar-ocr">"oar-ocr "</a>"crate and it's models. For more information take a look  " <a class="link-primary" href="https://github.com/mariinkys/delphinus/blob/main/ocr_models/README.md">"here. "</a>""</li>
-                        <li>"For the OCR to work correctly, you should try to provide as clean of an image as possible. You can take a look at example images "<a class="link-primary" href="" target="_blank">"here."</a>""</li>
+                        <li>"For the OCR to work correctly, you should try to provide as clean of an image as possible."</li>
                         <li>"OCR needs quite a lot of processing power; remember this (on the public instance) runs under my own budget. Try to not abuse the feature and consider donating."</li>
                     </ol>
                 </div>
