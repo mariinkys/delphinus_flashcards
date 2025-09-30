@@ -105,36 +105,43 @@ pub fn GeneratorPage() -> impl IntoView {
             <PageTitleComponent text="Generate Flashcards!"/>
 
             <DialogComponent dialog_title="OCR Image" dialog_node_ref=ocr_dialog_ref_node is_close_btn_disabled={ocr_upload_loading.get()} dialog_content=move || view! {
-                <form class="flex flex-col gap-3" on:submit=on_image_submit>
-                    <label class="label" for="ocr_image">"OCR Image"</label>
-                        <input id="ocr_image" disabled=ocr_upload_loading type="file" accept="image/*" class="file-input w-full" node_ref=file_input on:change=move |_ev| {
-                            if let Some(files) = file_input.get().unwrap().files()
-                                && let Some(file) = files.get(0) {
-                                    let file_type = crate::core::utils::is_extension_image(&file);
-                                    if file_type.is_none() {
-                                        set_toast.set(ToastMessage {
-                                            message: String::from("Not a valid image"),
-                                            toast_type: ToastType::Error,
-                                            visible: true,
-                                        });
-                                        ocr_image.set(None);
-                                    } else {
-                                        spawn_local(async move {
-                                            let promise = file.array_buffer();
-                                            if let Ok(js_value) = wasm_bindgen_futures::JsFuture::from(promise).await {
-                                                let bytes = web_sys::js_sys::Uint8Array::new(&js_value).to_vec();
-                                                ocr_image.set(Some(bytes));
-                                            } else {
-                                                ocr_image.set(None);
-                                            }
-                                        });
+                <Show when=move || !ocr_upload_loading.get() fallback=move || {
+                    view! {
+                        <p class="text-center font-bold text-xl">"Processing..."</p>
+                        <p class="text-center font-bold text-xl text-error">"Please Wait, do not close this window"</p>
+                    }
+                }>
+                    <form class="flex flex-col gap-3" on:submit=on_image_submit>
+                        <label class="label" for="ocr_image">"OCR Image"</label>
+                            <input id="ocr_image" disabled=ocr_upload_loading type="file" accept="image/*" class="file-input w-full" node_ref=file_input on:change=move |_ev| {
+                                if let Some(files) = file_input.get().unwrap().files()
+                                    && let Some(file) = files.get(0) {
+                                        let file_type = crate::core::utils::is_extension_image(&file);
+                                        if file_type.is_none() {
+                                            set_toast.set(ToastMessage {
+                                                message: String::from("Not a valid image"),
+                                                toast_type: ToastType::Error,
+                                                visible: true,
+                                            });
+                                            ocr_image.set(None);
+                                        } else {
+                                            spawn_local(async move {
+                                                let promise = file.array_buffer();
+                                                if let Ok(js_value) = wasm_bindgen_futures::JsFuture::from(promise).await {
+                                                    let bytes = web_sys::js_sys::Uint8Array::new(&js_value).to_vec();
+                                                    ocr_image.set(Some(bytes));
+                                                } else {
+                                                    ocr_image.set(None);
+                                                }
+                                            });
+                                        }
                                     }
-                                }
-                        }
-                    />
+                            }
+                        />
 
-                    <button disabled=ocr_upload_loading class="btn btn-primary mt-3 w-full" type="submit">"Upload"</button>
-                </form>
+                        <button disabled=ocr_upload_loading class="btn btn-primary mt-3 w-full" type="submit">"Upload"</button>
+                    </form>
+                </Show>
             }/>
 
             <div class="max-w-4xl text-center m-auto p-2">
