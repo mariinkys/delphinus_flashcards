@@ -81,6 +81,7 @@ pub fn GeneratorPage() -> impl IntoView {
                         });
                         ocr_image.set(None);
                         ocr_upload_loading.set(false);
+                        ocr_dialog_ref_node.get_untracked().unwrap().close();
                     }
                     Err(err) => {
                         set_toast.set(ToastMessage {
@@ -94,8 +95,6 @@ pub fn GeneratorPage() -> impl IntoView {
                 }
             });
         }
-
-        //ocr_dialog_ref_node.get().unwrap().close();
     };
 
     view! {
@@ -105,6 +104,7 @@ pub fn GeneratorPage() -> impl IntoView {
         >
             <PageTitleComponent text="Generate Flashcards!"/>
 
+            // is_close_btn_disabled={ocr_upload_loading.get()} TODO: When leptos updates to 0.8.10 with https://github.com/leptos-rs/leptos/pull/4314 released, put this back on the dialog component
             <DialogComponent dialog_title="OCR Image" dialog_node_ref=ocr_dialog_ref_node dialog_content=move || view! {
                 <form class="flex flex-col gap-3" on:submit=on_image_submit>
                     <label class="label" for="ocr_image">"OCR Image"</label>
