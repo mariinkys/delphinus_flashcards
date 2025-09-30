@@ -2,7 +2,7 @@
 FROM rustlang/rust:nightly-alpine as builder
 
 RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev openssl-dev binaryen pkgconfig
+    apk add --no-cache bash curl npm libc-dev openssl-dev binaryen pkgconfig openssl-libs-static
 
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
 #RUN cargo install --locked cargo-leptos@0.2.33
