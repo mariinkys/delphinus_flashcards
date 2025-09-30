@@ -27,7 +27,7 @@ COPY . .
 RUN npm install -g sass \
     && npm install
 
-RUN RUSTFLAGS="--cfg erase_components" cargo leptos build --release -vv
+RUN cargo leptos build --release -vv
 
 FROM debian:bookworm-slim as runner
 WORKDIR /app
