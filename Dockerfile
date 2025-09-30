@@ -1,25 +1,42 @@
-# Get started with a build env with Rust nightly
-FROM rustlang/rust:nightly-alpine as builder
+FROM rustlang/rust:nightly-bookworm as builder
 
-RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev openssl-dev binaryen pkgconfig openssl-libs-static
+RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz \
+    && tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz \
+    && cp cargo-binstall /usr/local/cargo/bin \
+    && rm cargo-binstall-x86_64-unknown-linux-musl.tgz
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
-#RUN cargo install --locked cargo-leptos@0.2.33
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends clang libssl-dev pkg-config npm binaryen build-essential \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
-# Add the WASM target
+# Download latest Binaryen release from GitHub and install it
+RUN BINARYEN_VERSION=$(curl -s https://api.github.com/repos/WebAssembly/binaryen/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') \
+    && wget https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN_VERSION}/binaryen-${BINARYEN_VERSION}-x86_64-linux.tar.gz \
+    && tar -xzf binaryen-${BINARYEN_VERSION}-x86_64-linux.tar.gz \
+    && cp -r binaryen-${BINARYEN_VERSION}/bin/* /usr/local/bin/ \
+    && rm -rf binaryen-${BINARYEN_VERSION} binaryen-${BINARYEN_VERSION}-x86_64-linux.tar.gz
+
+RUN cargo binstall cargo-leptos -y
+
 RUN rustup target add wasm32-unknown-unknown
 
-WORKDIR /work
+WORKDIR /app
 COPY . .
 
-RUN npm install
+RUN npm install -g sass \
+    && npm install
 
-RUN cargo leptos build --release -vv
+RUN RUSTFLAGS="--cfg erase_components" cargo leptos build --release -vv
 
-FROM rustlang/rust:nightly-alpine as runner
-
+FROM debian:bookworm-slim as runner
 WORKDIR /app
+
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /work/target/release/delphinus /app/
 COPY --from=builder /work/target/site /app/site
