@@ -18,3 +18,8 @@ node_modules/
 test-results/
 end2end/playwright-report/
 playwright/.cache/
+
+# ocr_models
+ocr_models/ppocrv5_dict.txt
+ocr_models/ppocrv5_server_det.onnx
+ocr_models/ppocrv5_server_rec.onnx

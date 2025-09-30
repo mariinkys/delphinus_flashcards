@@ -27,6 +27,17 @@ COPY --from=builder /work/Cargo.toml /app/
 # Copy the dictionaries
 COPY --from=builder /work/dictionaries /app/dictionaries
 
+# Download OCR models and place them under /app/ocr_models
+RUN apk add --no-cache curl && \
+    mkdir -p /app/ocr_models && \
+    curl -L -o /app/ocr_models/ppocrv5_server_det.onnx \
+        https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_server_det.onnx && \
+    curl -L -o /app/ocr_models/ppocrv5_server_rec.onnx \
+        https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_server_rec.onnx && \
+    curl -L -o /app/ocr_models/ppocrv5_dict.txt \
+        https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_dict.txt && \
+    apk del curl
+
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 ENV LEPTOS_SITE_ROOT=./site
