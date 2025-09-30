@@ -13,6 +13,8 @@ async fn main() -> std::io::Result<()> {
     use leptos::prelude::*;
     use leptos_actix::{LeptosRoutes, generate_route_list};
     use leptos_meta::MetaTags;
+    use oar_ocr::prelude::OAROCRBuilder;
+    use std::sync::Arc;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -26,6 +28,16 @@ async fn main() -> std::io::Result<()> {
         dictionaries::ChineseDictionary::init(String::from("dictionaries/ch/cedict_ts.u8"))
             .await
             .expect("Failed to load Chinese Dictionary");
+
+    let ocr_client = Arc::new(
+        OAROCRBuilder::new(
+            String::from("ocr_models/ppocrv5_server_det.onnx"),
+            String::from("ocr_models/ppocrv5_server_rec.onnx"),
+            String::from("ocr_models/ppocrv5_dict.txt"),
+        )
+        .build()
+        .expect("Failed to create OCR Client"),
+    );
 
     println!("listening on http://{}", &addr);
 
@@ -66,6 +78,8 @@ async fn main() -> std::io::Result<()> {
             //pass dictionaries
             .app_data(web::Data::new(jap_dictionary.to_owned()))
             .app_data(web::Data::new(ch_dictionary.to_owned()))
+            //pass ocr client
+            .app_data(web::Data::new(ocr_client.to_owned()))
         //.wrap(middleware::Compress::default())
     })
     .bind(&addr)?

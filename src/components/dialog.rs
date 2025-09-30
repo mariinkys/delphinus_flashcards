@@ -11,6 +11,9 @@ pub fn DialogComponent(
     /// The title of the dialog, it will default to 'Dialog Title' if not provided.
     #[prop(optional, into)]
     dialog_title: String,
+    /// If you want to control the state of the close button enabled(false)/disabled(true), if not provided btn is always active
+    #[prop(optional, into)]
+    is_close_btn_disabled: Option<bool>,
     /// The NodeRef that let's you control the dialog, if not provided it will be managed by the component itself, the component will default to a button that opens the dialog.
     /// You can provide the NodeRef and control it from outside the component; providing the NodeRef will make it so that the component does not render the default button that opens the dialog.
     /// If you provide you're own NodeRef you can open the dialog using: `dialog_ref.get().unwrap().show_modal();`
@@ -44,6 +47,12 @@ pub fn DialogComponent(
         dialog_title
     };
 
+    let close_btn_disabled = if let Some(state) = is_close_btn_disabled {
+        state
+    } else {
+        false
+    };
+
     view! {
         <Show when=move || dialog_node_ref.is_none()>
             <button
@@ -61,6 +70,7 @@ pub fn DialogComponent(
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-bold">{dia_title.to_string()}</h2>
                 <button
+                    disabled=close_btn_disabled
                     class="btn btn-sm btn-ghost"
                     on:click=move |_| {
                         dialog_ref.get().unwrap().close();

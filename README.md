@@ -34,3 +34,5 @@ These files are the property of the <a class="link-primary" href="https://www.ed
 , and are used in conformance with the Group's<a class="link-primary" href="https://www.edrdg.org/edrdg/licence.html"> licence</a>.
 
 This site uses the <a class="link-primary" href="https://www.mdbg.net/chinese/dictionary?page=cedict">CC-CEDICT </a> dictionary files and are used in conformance with its license.
+
+For OCR this project makes use of the awesome [oar-ocr](https://github.com/GreatV/oar-ocr) crate and it's models. For more information take a look [here](https://github.com/mariinkys/blob/main/ocr_models/README.md).
