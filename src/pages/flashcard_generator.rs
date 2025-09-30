@@ -7,7 +7,10 @@ use crate::{
         DialogComponent, PageTitleComponent, SelectOption, ToastType,
         flashcard_generation::ModifyGeneratedFlashcards, toast::ToastMessage,
     },
-    core::flashcard_generation::flashcard::{Flashcard, remove_whitespace, search_dictionary},
+    core::flashcard_generation::{
+        entities::SeparationChar,
+        flashcard::{Flashcard, remove_whitespace, search_dictionary},
+    },
 };
 
 #[component]
@@ -54,24 +57,31 @@ pub fn GeneratorPage() -> impl IntoView {
     let file_input = NodeRef::<leptos::html::Input>::new();
     let ocr_image = RwSignal::new(None);
     let ocr_upload_loading = RwSignal::new(false);
+    let separation_char = RwSignal::new(SeparationChar::default());
     let on_image_submit = move |ev: leptos::ev::SubmitEvent| {
         // stop the page from reloading!
         ev.prevent_default();
 
         if !ocr_upload_loading.get() && ocr_image.get_untracked().is_some() {
             ocr_upload_loading.set(true);
+            let separation_char = separation_char.get();
 
             // TODO: How to make loading appear on submit click (why does it wait for a while? file uploading?)
             spawn_local(async move {
                 let image_bytes: Vec<u8> = ocr_image.get_untracked().unwrap();
 
-                match crate::core::flashcard_generation::ocr::ocr_image(image_bytes).await {
+                match crate::core::flashcard_generation::ocr::ocr_image(
+                    image_bytes,
+                    separation_char.get_char().to_string(),
+                )
+                .await
+                {
                     Ok(result_string) => {
                         if character_string.get_untracked().is_empty() {
                             set_character_string(result_string);
                         } else {
                             set_character_string
-                                .update(|value| *value = format! {"{}, {}", value, result_string});
+                                .update(|value| *value = format! {"{}{} {}", value, separation_char.get_char(), result_string});
                         };
 
                         set_toast.set(ToastMessage {
@@ -112,7 +122,8 @@ pub fn GeneratorPage() -> impl IntoView {
                     }
                 }>
                     <form class="flex flex-col gap-3" on:submit=on_image_submit>
-                        <label class="label" for="ocr_image">"OCR Image"</label>
+                        <fieldset class="fieldset">
+                            <label class="label" for="ocr_image">"OCR Image"</label>
                             <input id="ocr_image" disabled=ocr_upload_loading type="file" accept="image/*" class="file-input w-full" node_ref=file_input on:change=move |_ev| {
                                 if let Some(files) = file_input.get().unwrap().files()
                                     && let Some(file) = files.get(0) {
@@ -138,6 +149,37 @@ pub fn GeneratorPage() -> impl IntoView {
                                     }
                             }
                         />
+                        </fieldset>
+
+                        <fieldset class="fieldset">
+                            <label class="label" for="theme">"Separation Char"</label>
+                            <select
+                                class="select select-primary w-full"
+                                id="spearation_char"
+                                on:change=move |ev| {
+                                    if let Ok(new_char) = event_target_value(&ev).parse::<SeparationChar>() {
+                                        separation_char.set(new_char);
+                                    }
+                                }
+                            >
+                                <For
+                                    each=move || SeparationChar::ALL.iter()
+                                    key=|s_char| *s_char
+                                    children=move |s_char| {
+                                        let is_selected = move || separation_char.get() == *s_char;
+
+                                        view! {
+                                            <option
+                                                value=s_char.to_string()
+                                                selected=is_selected
+                                            >
+                                                {s_char.to_string()}
+                                            </option>
+                                        }
+                                    }
+                                />
+                            </select>
+                        </fieldset>
 
                         <button disabled=ocr_upload_loading class="btn btn-primary mt-3 w-full" type="submit">"Upload"</button>
                     </form>

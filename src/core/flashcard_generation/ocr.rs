@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 
 #[server(OCRImage, "/ocr")]
-pub async fn ocr_image(bytes: Vec<u8>) -> Result<String, ServerFnError> {
+pub async fn ocr_image(bytes: Vec<u8>, separation_char: String) -> Result<String, ServerFnError> {
     use actix_web::web::Data;
     use leptos_actix::extract;
     use oar_ocr::prelude::*;
@@ -27,7 +27,7 @@ pub async fn ocr_image(bytes: Vec<u8>) -> Result<String, ServerFnError> {
     if clean_result.is_empty() {
         Ok(String::new())
     } else {
-        Ok(clean_result.join(", "))
+        Ok(clean_result.join(&format!("{} ", separation_char)))
     }
 }
 
