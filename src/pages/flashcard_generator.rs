@@ -104,8 +104,7 @@ pub fn GeneratorPage() -> impl IntoView {
         >
             <PageTitleComponent text="Generate Flashcards!"/>
 
-            // is_close_btn_disabled={ocr_upload_loading.get()} TODO: When leptos updates to 0.8.10 with https://github.com/leptos-rs/leptos/pull/4314 released, put this back on the dialog component
-            <DialogComponent dialog_title="OCR Image" dialog_node_ref=ocr_dialog_ref_node dialog_content=move || view! {
+            <DialogComponent dialog_title="OCR Image" dialog_node_ref=ocr_dialog_ref_node is_close_btn_disabled={ocr_upload_loading.get()} dialog_content=move || view! {
                 <form class="flex flex-col gap-3" on:submit=on_image_submit>
                     <label class="label" for="ocr_image">"OCR Image"</label>
                         <input id="ocr_image" disabled=ocr_upload_loading type="file" accept="image/*" class="file-input w-full" node_ref=file_input on:change=move |_ev| {
