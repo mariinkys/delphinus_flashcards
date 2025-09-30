@@ -67,11 +67,11 @@ jobs:
           echo "Successfully pushed image with tags:"
           echo "${{ steps.meta.outputs.tags }}"
 
-      - name: Delete untagged images
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ github.event.repository.name }}
-          package-type: 'container'
-          min-versions-to-keep: 0
-          delete-only-untagged-versions: 'true'
+      # - name: Delete untagged images
+      #   uses: actions/delete-package-versions@v5
+      #   continue-on-error: true
+      #   with:
+      #     package-name: ${{ github.event.repository.name }}
+      #     package-type: 'container'
+      #     min-versions-to-keep: 0
+      #     delete-only-untagged-versions: 'true'
