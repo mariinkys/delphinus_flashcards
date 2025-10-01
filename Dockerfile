@@ -56,5 +56,8 @@ RUN mkdir -p /app/ocr_models && \
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 ENV LEPTOS_SITE_ROOT=./site
+ENV DISABLE_ORC="FALSE"
+
 EXPOSE 8080
+
 CMD ["/app/delphinus"]
