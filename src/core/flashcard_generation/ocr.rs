@@ -14,12 +14,15 @@ pub async fn ocr_image(bytes: Vec<u8>, separation_char: String) -> Result<String
 
     let mut clean_result = Vec::new();
     for region in &result.text_regions {
-        if let (Some(text), Some(_confidence)) = (&region.text, region.confidence) {
+        if let (Some(text), Some(confidence)) = (&region.text, region.confidence) {
             let filtered = filter_cjk(text);
 
             if !filtered.is_empty() {
-                //println!("Text: {} (confidence: {:.2})", chinese_only, confidence);
-                clean_result.push(filtered);
+                // only those with more than 50% confidence
+                //println!("Text: {} (confidence: {:.2})", filtered, confidence);
+                if confidence > 0.5 {
+                    clean_result.push(filtered);
+                }
             }
         }
     }

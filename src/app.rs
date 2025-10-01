@@ -7,6 +7,7 @@ use leptos_router::{
 
 use crate::{
     components::{NavbarComponent, ToastComponent},
+    config::DelphinusConfig,
     pages::{FaqPage, GeneratorPage, HomePage, NotFound},
 };
 
@@ -14,6 +15,11 @@ use crate::{
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
+
+    // Provides the config as a context
+    let (read, _write) =
+        signal::<DelphinusConfig>(SharedValue::new(DelphinusConfig::get).into_inner());
+    provide_context::<ReadSignal<DelphinusConfig>>(read);
 
     view! {
         // injects a stylesheet into the document <head>

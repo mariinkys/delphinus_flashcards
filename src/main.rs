@@ -1,11 +1,12 @@
 pub mod components;
+pub mod config;
 pub mod core;
 pub mod pages;
 
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    use crate::core::flashcard_generation::dictionaries;
+    use crate::{config::DelphinusConfig, core::flashcard_generation::dictionaries};
     use actix_files::Files;
     use actix_web::*;
     use delphinus::app::*;
@@ -31,13 +32,15 @@ async fn main() -> std::io::Result<()> {
 
     let ocr_client = Arc::new(
         OAROCRBuilder::new(
-            String::from("ocr_models/ppocrv5_server_det.onnx"),
-            String::from("ocr_models/ppocrv5_server_rec.onnx"),
+            String::from("ocr_models/ppocrv5_mobile_det.onnx"),
+            String::from("ocr_models/ppocrv5_mobile_rec.onnx"),
             String::from("ocr_models/ppocrv5_dict.txt"),
         )
         .build()
         .expect("Failed to create OCR Client"),
     );
+
+    let _shared_config = SharedValue::new(DelphinusConfig::get);
 
     println!("listening on http://{}", &addr);
 

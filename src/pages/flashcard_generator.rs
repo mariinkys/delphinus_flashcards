@@ -7,6 +7,7 @@ use crate::{
         DialogComponent, PageTitleComponent, SelectOption, ToastType,
         flashcard_generation::ModifyGeneratedFlashcards, toast::ToastMessage,
     },
+    config::DelphinusConfig,
     core::flashcard_generation::{
         entities::SeparationChar,
         flashcard::{Flashcard, remove_whitespace, search_dictionary},
@@ -16,6 +17,7 @@ use crate::{
 #[component]
 pub fn GeneratorPage() -> impl IntoView {
     let set_toast: WriteSignal<ToastMessage> = expect_context();
+    let delphinus_config: ReadSignal<DelphinusConfig> = expect_context();
 
     let (character_string, set_character_string) = signal(String::new());
     let (language, set_language) = signal("Chinese".to_string());
@@ -189,6 +191,7 @@ pub fn GeneratorPage() -> impl IntoView {
             <div class="max-w-4xl text-center m-auto p-2">
                 <div class="flex justify-between my-3 items-center">
                     <button
+                        disabled=move || {delphinus_config.get().disable_ocr}
                         class="btn btn-sm btn-accent"
                         on:click=move |_| {
                             let _ = ocr_dialog_ref_node.get().unwrap().show_modal();
