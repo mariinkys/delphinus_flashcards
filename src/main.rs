@@ -31,8 +31,8 @@ async fn main() -> std::io::Result<()> {
 
     let ocr_client = Arc::new(
         OAROCRBuilder::new(
-            String::from("ocr_models/ppocrv5_server_det.onnx"),
-            String::from("ocr_models/ppocrv5_server_rec.onnx"),
+            String::from("ocr_models/ppocrv5_mobile_det.onnx"),
+            String::from("ocr_models/ppocrv5_mobile_rec.onnx"),
             String::from("ocr_models/ppocrv5_dict.txt"),
         )
         .build()

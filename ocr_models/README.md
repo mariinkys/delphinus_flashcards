@@ -7,12 +7,12 @@ Models used are:
 ### Text Detection Models
 | Model Type     | Version  | Category | Model File                                                                                                      | Size    | Description                                    |
 |----------------|----------|----------|-----------------------------------------------------------------------------------------------------------------|---------|------------------------------------------------|
-| Text Detection | PP-OCRv5 | Server   | [`ppocrv5_server_det.onnx`](https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_server_det.onnx) | 87.7MB  | Server variant for high-precision requirements |
+| Text Detection | PP-OCRv5 | Mobile   | [`ppocrv5_mobile_det.onnx`](https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_mobile_det.onnx) | 4.8MB   | Mobile variant for real-time applications      |
 
 ### Text Recognition Models
 | Model Type       | Version  | Language/Category | Model File                                                                                                              | Size   | Description                      |
 |------------------|----------|-------------------|-------------------------------------------------------------------------------------------------------------------------|--------|----------------------------------|
-| Text Recognition | PP-OCRv5 | Chinese/General   | [`ppocrv5_server_rec.onnx`](https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_server_rec.onnx)         | 84.1MB | Server variant                   |
+| Text Recognition | PP-OCRv5 | Chinese/General   | [`ppocrv5_mobile_rec.onnx`](https://github.com/GreatV/oar-ocr/releases/download/v0.1.0/ppocrv5_mobile_rec.onnx)         | 16.5MB | Mobile variant                   |
 
 ### Character Dictionaries
 | File Type            | Version        | Category | Model File                                                                                                | Size | Description                  |

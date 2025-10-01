@@ -23,3 +23,5 @@ playwright/.cache/
 ocr_models/ppocrv5_dict.txt
 ocr_models/ppocrv5_server_det.onnx
 ocr_models/ppocrv5_server_rec.onnx
+ocr_models/ppocrv5_mobile_det.onnx
+ocr_models/ppocrv5_mobile_rec.onnx
